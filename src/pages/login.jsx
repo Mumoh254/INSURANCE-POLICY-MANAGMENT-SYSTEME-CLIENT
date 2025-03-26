@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Alert, Spinner, Card, Container } from 'react-bootstrap';
 import axios from 'axios';
@@ -14,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
 
 const LoginContainer = styled.div`
   min-height: 80vh;
-  background: linear-gradient(135deg,rgb(212, 212, 212) 0%,rgb(252, 252, 252) 100%);
+  background: linear-gradient(135deg, rgb(212, 212, 212) 0%, rgb(252, 252, 252) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,6 +31,11 @@ const LoginCard = styled(Card)`
   border: none;
   overflow: hidden;
   padding: 3rem;
+
+  @media (max-width: 576px) {
+    padding: 1.5rem;
+    min-height: 400px;
+  }
 `;
 
 const BrandHeader = styled.div`
@@ -40,7 +45,11 @@ const BrandHeader = styled.div`
   text-align: center;
   margin-bottom: 1rem;
   font-size: 1.2rem;
-  border-radius: 0px;
+
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
 `;
 
 const RoleBadge = styled.span`
@@ -53,8 +62,14 @@ const RoleBadge = styled.span`
   transition: all 0.3s ease;
   font-weight: 600;
   font-size: 1rem;
+
   &:hover {
     border-color: #0a192f;
+  }
+
+  @media (max-width: 576px) {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -93,7 +108,7 @@ const Login = () => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Login Successful ',
+        title: 'Login Successful',
         text: 'System Redirecting ...',
         timer: 3000,
         showConfirmButton: true,
@@ -115,12 +130,12 @@ const Login = () => {
   return (
     <>
       <GlobalStyle />
-      <LoginContainer  style={{  background: "#fff"}} >
-        <Container     >
+      <LoginContainer style={{ background: "#fff" }}>
+        <Container>
           <LoginCard>
             <BrandHeader>
-              <h3 className='text-white ' >Insurance Management System</h3>
-              <p className='text-white' >Secure Admin Login Portal .</p>
+              <h3 className='text-white'>Insurance Management System</h3>
+              <p className='text-white'>Secure Admin Login Portal.</p>
             </BrandHeader>
 
             <div className="px-4 pb-4">
@@ -128,7 +143,7 @@ const Login = () => {
                 <RoleBadge
                   active={formData.role === 'admin'}
                   onClick={() => handleRoleChange('admin')}
-                  className='px-5   btn-toolbar bg'
+                  className='px-5 btn-toolbar'
                 >
                   Admin
                 </RoleBadge>
@@ -143,14 +158,14 @@ const Login = () => {
               {error && <Alert variant="danger" className="text-center">{error}</Alert>}
 
               <Form onSubmit={handleSubmit}>
-                <Form.Group >
+                <Form.Group>
                   <Form.Label>Email Address</Form.Label>
                   <Form.Control
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter your  Email "
+                    placeholder="Enter your Email"
                   />
                 </Form.Group>
 
@@ -165,12 +180,11 @@ const Login = () => {
                   />
                 </Form.Group>
 
-                <Button 
-                  
-                  type="submit" 
-                  disabled={loading}  
+                <Button
+                  type="submit"
+                  disabled={loading}
                   className="w-100 py-3"
-                  style={{ fontSize: '1.2rem', fontWeight: 'bold' , background: "#0a192f" }}
+                  style={{ fontSize: '1.2rem', fontWeight: 'bold', background: "#0a192f" }}
                 >
                   {loading ? (
                     <Spinner
@@ -188,7 +202,7 @@ const Login = () => {
 
               <div className="text-center mt-4">
                 <small className="text-muted">
-                  Forgot Your  password ? Contact system administrator For  Help !
+                  Forgot Your password? Contact system administrator for help!
                 </small>
               </div>
             </div>

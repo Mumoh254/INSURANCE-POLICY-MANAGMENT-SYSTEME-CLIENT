@@ -191,7 +191,7 @@ const ProtectedLayout = () => {
             {/* Desktop Right Side Items */}
             <Nav className="align-items-center gap-3 d-none d-lg-flex">
               <div className="text-white d-flex align-items-center gap-2">
-                <span className="small">Admin Online</span>
+               
                 <RealTimeClock />
               </div>
               <Button
