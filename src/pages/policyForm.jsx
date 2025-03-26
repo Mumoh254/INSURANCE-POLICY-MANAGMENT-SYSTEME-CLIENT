@@ -459,7 +459,6 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
           </Form.Group>
         </Col>
 
-        // Change this in HealthFormFields component
 <Form.Select
   value                    
                       
