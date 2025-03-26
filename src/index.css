@@ -339,6 +339,17 @@ button{
 }
 
 
+::-webkit-scrollbar {
+  display: none;
+}
+
+
+body {
+
+  overflow: auto; 
+}
+
+
 .fixed{
   position: sticky;
   top: 0;
