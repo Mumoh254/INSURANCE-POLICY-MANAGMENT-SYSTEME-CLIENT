@@ -3,9 +3,9 @@ import { Badge, Button, Container, Row, Col, Alert, Modal, Spinner } from "react
 import { io } from "socket.io-client";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUser, faBellSlash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUser } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css"; 
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const API_BASE_URL = "https://insurance-v1-api.onrender.com";
 const SOCKET_URL = "https://insurance-v1-api.onrender.com";
@@ -27,15 +27,28 @@ const Notifications = () => {
     loading: true,
     socketConnected: false,
     deletingIds: [],
+    soundEnabled: true,
   });
 
+  const audioRef = useRef(null);
   const socketRef = useRef(null);
   const stateRef = useRef(state);
-
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    audioRef.current = new Audio("/notification.mp3");
+    audioRef.current.preload = "auto";
+    audioRef.current.volume = 1.0;
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -43,7 +56,6 @@ const Notifications = () => {
       const validNotifications = response.data.notifications
         .filter((n) => n?.id && n?.message)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      
       setState((prev) => ({
         ...prev,
         notifications: validNotifications,
@@ -57,50 +69,49 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-
     socketRef.current = io(SOCKET_URL, {
       reconnectionAttempts: 5,
       withCredentials: true,
     });
 
     socketRef.current.on("connect", () => {
-      console.log("Socket connected");
       setState((prev) => ({ ...prev, socketConnected: true }));
     });
 
     socketRef.current.on("disconnect", () => {
-      console.log("Socket disconnected");
       setState((prev) => ({ ...prev, socketConnected: false }));
     });
 
     const handleNewNotification = (notification) => {
-      console.log("handleNewNotification triggered with:", notification);
       if (!notification?.id) return;
 
-      console.log("About to show Swal popup for notification:", notification.message);
-      
+      if (stateRef.current.soundEnabled && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch((error) => {
+          console.error("Audio playback failed:", error);
+          Swal.fire({
+            icon: "info",
+            title: "Sound blocked",
+            text: "Please interact with the page to enable notification sounds",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        });
+      }
 
       Swal.fire({
         toast: true,
         position: "top-end",
         icon: "success",
         title: "NEW NOTIFICATION ALERT!",
-        html: `
-          <div style="font-size: 14px;">
-            <p>${notification.message}</p>
-            <p><strong>Policy:</strong> ${notification.policy.policyName}</p>
-            <p><strong>User:</strong> ${notification.user.name}</p>
-          </div>
-        `,
-        showConfirmButton: true,
-        timer: 9000,
+        html: `<small>${notification.message}</small>`,
+        showConfirmButton: false,
+        timer: 7000,
         timerProgressBar: true,
-      }).then(() => {
-        console.log("Swal popup closed");
       });
-      
 
-   
       setState((prev) => ({
         ...prev,
         notifications: [
@@ -159,48 +170,42 @@ const Notifications = () => {
     }
   };
 
-  // Render 
   const NotificationItem = ({ notification, index }) => {
-    const align = index % 2 === 0 ? "left" : "right";
     const styleConfig = notificationStyles[notification.type] || notificationStyles.NEW;
     return (
       <div
-        className={`d-flex justify-content-${align} mb-4`}
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            selectedNotification: notification,
-            showDetailModal: true,
-          }))
-        }
+        className="mb-3"
+        onClick={() => setState((prev) => ({
+          ...prev,
+          selectedNotification: notification,
+          showDetailModal: true,
+        }))}
       >
         <div
-          className="rounded p-3 position-relative shadow-sm"
+          className="rounded p-2 p-md-3 position-relative shadow-sm"
           style={{
             width: "100%",
-            maxWidth: "45%",
             backgroundColor: styleConfig.bg,
-            marginLeft: align === "right" ? "auto" : "0",
             border: `1px solid ${styleConfig.color}50`,
             cursor: "pointer",
             transition: "transform 0.2s",
           }}
         >
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <Badge pill style={{ backgroundColor: styleConfig.color, color: "white" }}>
+            <Badge pill style={{ backgroundColor: styleConfig.color, color: "white", fontSize: "0.75rem" }}>
               {notification.type}
             </Badge>
-            <small className="text-muted">
+            <small className="text-muted" style={{ fontSize: "0.8rem" }}>
               {new Date(notification.createdAt).toLocaleTimeString()}
             </small>
           </div>
-          <div className="mb-2" style={{ color: styleConfig.color, fontSize: "1.1rem" }}>
+          <div style={{ color: styleConfig.color, fontSize: "0.9rem" }}>
             {notification.message}
           </div>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="text-muted">
+          <div className="d-flex justify-content-between align-items-center mt-2">
+            <div className="text-muted" style={{ fontSize: "0.8rem" }}>
               <FontAwesomeIcon icon={faUser} className="me-1" />
-              Created By: {notification.creator?.name || "System"}
+              {notification.creator?.name || "System"}
             </div>
             <Button
               variant="link"
@@ -210,9 +215,9 @@ const Notifications = () => {
                 e.stopPropagation();
                 handleDelete(notification.id);
               }}
-              disabled={state.deletingIds && state.deletingIds.includes(notification.id)}
+              disabled={state.deletingIds.includes(notification.id)}
             >
-              {state.deletingIds && state.deletingIds.includes(notification.id) ? (
+              {state.deletingIds.includes(notification.id) ? (
                 <Spinner animation="border" size="sm" />
               ) : (
                 <FontAwesomeIcon icon={faTrash} />
@@ -221,7 +226,7 @@ const Notifications = () => {
           </div>
           {!notification.isRead && (
             <div className="position-absolute top-0 end-0 mt-1 me-1">
-              <Badge pill bg="success">
+              <Badge pill bg="success" style={{ fontSize: "0.6rem" }}>
                 New
               </Badge>
             </div>
@@ -232,10 +237,10 @@ const Notifications = () => {
   };
 
   return (
-    <Container fluid className="vh-100 bg-light p-4">
-      <Row className="mb-4">
+    <Container fluid className="vh-100 bg-light p-3">
+      <Row className="mb-3">
         <Col>
-          <h2 className="d-flex justify-content-between align-items-center">
+          <h2 className="d-flex justify-content-between align-items-center" style={{ fontSize: "1.5rem" }}>
             Insurance Real-Time Notifications
             <div className="d-flex gap-2">
               <Badge pill bg="danger">
@@ -251,60 +256,69 @@ const Notifications = () => {
 
       <Row className="mb-3">
         <Col className="d-flex gap-2">
-          <Button variant="primary" onClick={markAllAsRead}>
+          <Button variant="primary" size="sm" onClick={markAllAsRead}>
             Mark All as Read
           </Button>
         </Col>
       </Row>
 
-      {state.error && <Alert variant="danger">{state.error}</Alert>}
+      {state.error && <Alert variant="danger" className="py-2">{state.error}</Alert>}
 
       <Row>
         <Col md={12}>
           {state.loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="primary" />
+            <div className="text-center py-3">
+              <Spinner animation="border" variant="primary" size="sm" />
             </div>
           ) : (
-            <div className="bg-white rounded-3 shadow-sm p-4" style={{ maxHeight: "70vh", overflowY: "auto" }}>
+            <div className="bg-white rounded-3 shadow-sm p-2" style={{ 
+              maxHeight: "75vh", 
+              overflowY: "auto",
+              scrollbarWidth: "thin"
+            }}>
               {state.notifications.map((notification, index) => (
                 <NotificationItem key={notification.id} notification={notification} index={index} />
               ))}
               {state.notifications.length === 0 && (
-                <div className="text-center text-muted py-4">No notifications available</div>
+                <div className="text-center text-muted py-3" style={{ fontSize: "0.9rem" }}>
+                  No notifications available
+                </div>
               )}
             </div>
           )}
         </Col>
       </Row>
 
-      {/* Notification Detail Modal */}
       <Modal
         show={state.showDetailModal}
         onHide={() => setState((prev) => ({ ...prev, showDetailModal: false }))}
         size="lg"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Notification Details</Modal.Title>
+        <Modal.Header closeButton className="p-3">
+          <Modal.Title style={{ fontSize: "1.25rem" }}>Notification Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="p-3">
           {state.selectedNotification && (
             <>
-              <h5 className="mb-3">Notification Info</h5>
-              <p>
+              <p className="mb-2">
                 <strong>Type:</strong> {state.selectedNotification.type}
               </p>
-              <p>
-                <strong>Received:</strong> {new Date(state.selectedNotification.createdAt).toLocaleString()}
+              <p className="mb-2">
+                <strong>Received:</strong>{" "}
+                {new Date(state.selectedNotification.createdAt).toLocaleString()}
               </p>
-              <p style={{ fontSize: "1.1rem", fontWeight: "500" }}>
+              <p className="mb-0" style={{ fontSize: "1rem" }}>
                 <strong>Message:</strong> {state.selectedNotification.message}
               </p>
             </>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setState((prev) => ({ ...prev, showDetailModal: false }))}>
+        <Modal.Footer className="p-2">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => setState((prev) => ({ ...prev, showDetailModal: false }))}
+          >
             Close
           </Button>
         </Modal.Footer>
