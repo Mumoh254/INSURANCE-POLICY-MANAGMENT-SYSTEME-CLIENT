@@ -5,7 +5,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUser, faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css"; // Ensure SweetAlert2 CSS is loaded
+import "sweetalert2/dist/sweetalert2.min.css"; 
 
 const API_BASE_URL = "https://insurance-v1-api.onrender.com";
 const SOCKET_URL = "https://insurance-v1-api.onrender.com";
@@ -32,7 +32,7 @@ const Notifications = () => {
   const socketRef = useRef(null);
   const stateRef = useRef(state);
 
-  // Update stateRef on every state change
+
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -77,10 +77,9 @@ const Notifications = () => {
       console.log("handleNewNotification triggered with:", notification);
       if (!notification?.id) return;
 
-      // Log before calling Swal
       console.log("About to show Swal popup for notification:", notification.message);
       
-      // Show a popup toast for new notification for 7 seconds
+
       Swal.fire({
         toast: true,
         position: "top-end",
@@ -101,7 +100,7 @@ const Notifications = () => {
       });
       
 
-      // Update notifications state
+   
       setState((prev) => ({
         ...prev,
         notifications: [
@@ -160,7 +159,7 @@ const Notifications = () => {
     }
   };
 
-  // Render a single notification item
+  // Render 
   const NotificationItem = ({ notification, index }) => {
     const align = index % 2 === 0 ? "left" : "right";
     const styleConfig = notificationStyles[notification.type] || notificationStyles.NEW;

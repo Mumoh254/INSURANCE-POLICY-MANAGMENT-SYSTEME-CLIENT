@@ -127,8 +127,8 @@ const Policies = () => {
       return;
     }
   
-    const printSound = new Audio('/beep.mp3'); // Ensure the correct path
-    printSound.loop = true; // Enable looping
+    const printSound = new Audio('/beep.mp3'); 
+    printSound.loop = true; 
   
     let swalInstance = null;
   
@@ -140,20 +140,20 @@ const Policies = () => {
       showConfirmButton: false,
       didOpen: () => {
         Swal.showLoading();
-        printSound.play(); // Start looping sound
+        printSound.play();
         swalInstance = Swal.getPopup();
   
-        // ✅ Customize UI styles
-        document.querySelector('.swal2-title').style.color = '#06b10f'; // Green title
-        document.querySelector('.swal2-html-container').style.color = '#06b10f'; // Green text
+       
+        document.querySelector('.swal2-title').style.color = '#06b10f'; 
+        document.querySelector('.swal2-html-container').style.color = '#06b10f'; 
   
-        // ✅ Increase spinner size and change color
+        // Increase spinner 
         let spinner = document.querySelector('.swal2-loader');
         if (spinner) {
-          spinner.style.borderTopColor = '#06b10f'; // Green spinner
-          spinner.style.borderWidth = '6px'; // Thicker border
-          spinner.style.width = '70px'; // Bigger width
-          spinner.style.height = '70px'; // Bigger height
+          spinner.style.borderTopColor = '#06b10f'; 
+          spinner.style.borderWidth = '6px'; 
+          spinner.style.width = '70px'; 
+          spinner.style.height = '70px'; 
         }
       },
     });

@@ -5,12 +5,10 @@ export const printReceipt = (receiptData) => {
       return;
     }
   
-    // Ensure values are numbers
     const amount = Number(receiptData.policy.amount) || 0;
     const taxAmount = Number(receiptData.taxAmount) || 0;
     const totalAmount = Number(receiptData.totalAmount) || 0;
-  
-    // Create and play a beep sound during printing
+
     const printSound = new Audio('/beep.mp3');
     printSound.loop = true;
     printSound.play().catch(err => console.error("Print sound error:", err));

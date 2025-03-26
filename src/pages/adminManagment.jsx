@@ -43,12 +43,10 @@ const AdminManagement = () => {
       const response = await fetch(`${API_URL}/users`);
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
-      
-      // Filter for admins; you can include role badge here
+ 
       const admins = data.users.filter(user => user.role?.toLowerCase() === 'admin');
       console.log("Filtered admins:", admins);
-      
-      // Count active sessions (if property available)
+
       const active = admins.filter(a => a.isActive === true).length;
       console.log("Active admins count:", active);
       
@@ -217,7 +215,7 @@ const AdminManagement = () => {
       <Button 
         variant="outline-secondary" 
         onClick={() => setShowPassword(prev => !prev)}
-        onMouseDown={e => e.preventDefault()} // Prevent focus loss on button click
+        onMouseDown={e => e.preventDefault()} 
         aria-label="Toggle password visibility"
       >
         {showPassword ? '🙈' : '👁️'}

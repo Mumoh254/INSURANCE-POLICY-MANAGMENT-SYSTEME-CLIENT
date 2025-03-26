@@ -458,6 +458,23 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             </Form.Select>
           </Form.Group>
         </Col>
+
+        // Change this in HealthFormFields component
+<Form.Select
+  value                    
+                      
+                      
+  ={formData.healthDetails.coverageType || ''}
+  onChange={e => setFormData(prev => ({
+    ...prev,
+    healthDetails: { ...prev.healthDetails, coverageType: e.target.value }
+  }))}
+  required
+>
+  {/* options */}
+
+
+</Form.Select>
         <Col md={4}>
           <Form.Group>
             <Form.Label>Coverage Limit</Form.Label>
