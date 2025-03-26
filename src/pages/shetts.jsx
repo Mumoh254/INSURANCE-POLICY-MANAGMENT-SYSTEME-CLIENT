@@ -222,97 +222,99 @@ const PolicyList = () => {
   return (
     <div className="container-fluid py-4 bg-primary-subtle rounded-4 p-5">
     {/* Enhanced Statistics Section */}
-    <Row className="g-4 mb-5">
-      <StatCard 
-        icon={<FiPackage />}
-        title="Total Policies"
-        value={stats.totalPolicies}
-        colorFrom="#4f46e5"
-        colorTo="#6366f1"
-      />
-      <StatCard 
-        icon={<FiDollarSign />}
-        title="Total Coverage Value"
-        value={new Intl.NumberFormat('en-KE', { 
-          style: 'currency', 
-          currency: 'KES',
-          notation: stats.totalAmount > 1e6 ? 'compact' : 'standard',
-          maximumFractionDigits: 1
-        }).format(stats.totalAmount)}
-        colorFrom="#10b981"
-        colorTo="#34d399"
-      />
-      <StatCard 
-        icon={<FiAlertCircle />}
-        title="Pending Policies"
-        value={stats.pendingCount}
-        colorFrom="#f59e0b"
-        colorTo="#fbbf24"
-      />
-      <StatCard 
-        icon={<FiCheckCircle />}
-        title="Active Policies"
-        value={stats.activeCount}
-        colorFrom="#2563eb"
-        colorTo="#3b82f6"
-      />
-    </Row>
+    <Row className="g-3 g-md-4 mb-4 mb-md-5">
+        <StatCard 
+          icon={<FiPackage className="text-white" />}
+          title="Total Policies"
+          value={stats.totalPolicies}
+          colorFrom="#4f46e5"
+          colorTo="#6366f1"
+        />
+        <StatCard 
+          icon={<FiDollarSign className="text-white" />}
+          title="Total Coverage"
+          value={new Intl.NumberFormat('en-KE', { 
+            style: 'currency', 
+            currency: 'KES',
+            notation: stats.totalAmount > 1e6 ? 'compact' : 'standard',
+            maximumFractionDigits: 1
+          }).format(stats.totalAmount)}
+          colorFrom="#10b981"
+          colorTo="#34d399"
+        />
+        <StatCard 
+          icon={<FiAlertCircle className="text-white" />}
+          title="Pending Policies"
+          value={stats.pendingCount}
+          colorFrom="#f59e0b"
+          colorTo="#fbbf24"
+        />
+        <StatCard 
+          icon={<FiCheckCircle className="text-white" />}
+          title="Active Policies"
+          value={stats.activeCount}
+          colorFrom="#2563eb"
+          colorTo="#3b82f6"
+        />
+      </Row>
       {/* Users List */}
-      <Card className="shadow-lg border-0 mb-5">
-        <Card.Header className="bg-dark text-white py-3">
+      <Card className="shadow-sm border-0 mb-4">
+        <Card.Header className="bg-dark text-white py-2 py-md-3">
           <Row className="align-items-center">
-            <Col md={6}>
-              <h3 className="mb-0">
-                <FiUser className="me-3  text-light" />
-              <span className='text-light' >  Registered Users</span>
+            <Col xs={8} md={6}>
+              <h3 className="h4 mb-0">
+                <FiUser className="me-2 text-light" />
+                <span className="text-light">Registered Users</span>
               </h3>
             </Col>
-            <Col md={6} className="text-md-end">
-              <Badge pill bg="light" text="dark" className="me-2">
-                {users.length} Total
-              </Badge>
-              <Badge pill bg="light" text="dark">
-                {usersWithLocation.length} Filtered
-              </Badge>
+            <Col xs={4} md={6} className="text-end">
+              <div className="d-flex flex-column flex-md-row gap-2 justify-content-end">
+                <Badge pill bg="light" text="dark" className="me-md-2">
+                  {users.length} Total
+                </Badge>
+                <Badge pill bg="light" text="dark">
+                  {usersWithLocation.length} Filtered
+                </Badge>
+              </div>
             </Col>
           </Row>
         </Card.Header>
-        <Card.Body>
+        <Card.Body className="p-2 p-md-3">
           {renderUserControls()}
           <ListGroup variant="flush">
             {usersWithLocation.map(user => (
               <ListGroup.Item 
                 key={user.id}
-                className="py-3  user-item"
+                className="py-2 user-item"
                 action
                 onClick={() => handleUserSelect(user)}
               >
-                <Row className="align-items-center g-3">
+                <Row className="align-items-center g-2">
                   <Col xs="auto">
-                    <div className="avatar-circle bg">
-                      <FiUser className="text-white" />
+                    <div className="avatar-circle bg-primary" style={{ width: '35px', height: '35px' }}>
+                      <FiUser className="text-white" size={18} />
                     </div>
                   </Col>
                   <Col>
-                  <div className="d-flex flex-column">
-  <div className="d-flex align-items-baseline gap-2">
-    <h6 className="mb-0 fw-semibold"> <span  className=' me-5' >Name </span>{user.name}</h6>
-    <small className="text-muted"># Id Number{user.idNumber}</small>
-  </div>
-  <div className="d-flex align-items-center text-muted">
-    <FaPhone className="me-2 fs-6" />
-    <small > <span className='me-5' >Call</span>  {user.phone || 'No occupation listed'}</small>
-  </div>
-</div>
+                    <div className="d-flex flex-column">
+                      <div className="d-flex flex-column flex-md-row align-items-baseline gap-1 gap-md-2">
+                        <h6 className="mb-0 fw-semibold">{user.name}</h6>
+                        <small className="text-muted">#{user.idNumber}</small>
+                      </div>
+                      <div className="d-flex align-items-center text-muted">
+                        <FaPhone className="me-1 fs-6" />
+                        <small>{user.phone || 'No phone listed'}</small>
+                      </div>
+                    </div>
                   </Col>
-                  <Col md={3} className="d-none d-md-block">
+                  <Col xs="auto" className="d-none d-md-block">
                     <div className="d-flex align-items-center text-primary">
-                      <FiMapPin className="me-2" />
-                      <span>{user.location}</span>
+                      <FiMapPin className="me-1" />
+                      <small>{user.location}</small>
                     </div>
                   </Col>
                   <Col xs="auto">
-                    <Badge pill bg="success" className="px-3">
+                    <Badge pill bg="success" className="px-2">
                       {policies.filter(p => p.userId === user.id).length}
                     </Badge>
                   </Col>
@@ -323,39 +325,24 @@ const PolicyList = () => {
         </Card.Body>
       </Card>
 
-      {/* User Details Sidebar */}
       <Offcanvas
         show={showSidebar}
         onHide={() => setShowSidebar(false)}
         placement="end"
         className="user-details-sidebar"
-        style={{ width: 'min(90vw, 600px)' }}
+        style={{ width: '100vw', maxWidth: '600px' }}
       >
         <div className="d-flex flex-column h-100">
-          {/* Header */}
-          <Offcanvas.Header className="bg text-light py-3">
+          <Offcanvas.Header className="bg-dark text-light py-3">
             <div className="w-100">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <div className="d-flex align-items-center mb-3">
-                    <div className="avatar-lg bg-white me-3">
-                      <FiUser className="text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="mb-0 text-light">{selectedUser?.name}</h2>
-                      <small className="opacity-55">{selectedUser?.role}</small>
-                    </div>
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <div className="d-flex align-items-center">
+                  <div className="avatar-lg bg-white me-2">
+                    <FiUser className="text-primary" size={24} />
                   </div>
-                  <div className="d-flex flex-wrap gap-2">
-                    <Badge bg="white" text="dark" className="d-flex align-items-center py-2">
-                      <FiBriefcase className="me-2" />
-                      {selectedUser?.companyName|| 'N/A'}
-                    </Badge>
-                    <Badge bg="white" text="dark" className="d-flex align-items-center py-2">
-                      <FiMapPin className="me-2" />
-                      {selectedUser?.city} , 
-                     <span className='py-1 me-2' >   { selectedUser?.state}</span>
-                    </Badge>
+                  <div>
+                    <h3 className="h5 mb-0 text-light">{selectedUser?.name}</h3>
+                    <small className="opacity-55">{selectedUser?.role}</small>
                   </div>
                 </div>
                 <Button 
@@ -363,55 +350,63 @@ const PolicyList = () => {
                   onClick={() => setShowSidebar(false)}
                   className="p-0 text-white"
                 >
-                  <FiX size={24} />
+                  <FiX size={20} />
                 </Button>
+              </div>
+              <div className="d-flex flex-wrap gap-1">
+                <Badge bg="light" text="dark" className="d-flex align-items-center py-1">
+                  <FiBriefcase className="me-1" />
+                  <small>{selectedUser?.companyName|| 'N/A'}</small>
+                </Badge>
+                <Badge bg="light" text="dark" className="d-flex align-items-center py-1">
+                  <FiMapPin className="me-1" />
+                  <small>{selectedUser?.city}, {selectedUser?.state}</small>
+                </Badge>
               </div>
             </div>
           </Offcanvas.Header>
 
-          {/* Scrollable Content */}
-          <Offcanvas.Body className="p-4 h-100 overflow-auto">
-            {/* User Information */}
-            <section className="mb-5 bg  p-4">
-              <h5 className="text-dark mb-4 fw-semibold">
-                <FiFileText className="me-2 text-light" />
-              <span className='text-light' >  Personal Information</span>
+          <Offcanvas.Body className="p-3 h-100 overflow-auto">
+            {/* Personal Information */}
+            <section className="mb-4">
+              <h5 className="text-dark mb-3 fw-semibold">
+                <FiFileText className="me-2" />
+                Personal Info
               </h5>
-              <Row className="g-4 fw-bold fs-6">
-                <Col md={6}>
+              <Row className="g-2">
+                <Col xs={12} md={6}>
                   <InfoCard 
                     icon={<FiCalendar />}
-                    title="Our Member Since !"
+                    title="Member Since"
                     value={selectedUser?.createdAt && 
                       new Date(selectedUser.createdAt).toLocaleDateString()}
                   />
                 </Col>
-                <Col md={6}>
-  <InfoCard 
-    icon={<FiShield className="text-success" />} 
-    title="Account Status" 
-    value={<span className="text-success fw-bold">Verified</span>}
-  />
-</Col>
-
+                <Col xs={12} md={6}>
+                  <InfoCard 
+                    icon={<FiShield className="text-success" />} 
+                    title="Status" 
+                    value={<span className="text-success">Verified</span>}
+                  />
+                </Col>
               </Row>
             </section>
 
             {/* Company Information */}
-            <section className="mb-5">
-              <h5 className="text-dark mb-4 fw-semibold">
+            <section className="mb-4">
+              <h5 className="text-dark mb-3 fw-semibold">
                 <FiBriefcase className="me-2" />
                 Company Details
               </h5>
-              <Row className="g-3">
-                <Col md={6}>
+              <Row className="g-2">
+                <Col xs={12} md={6}>
                   <InfoCard 
                     icon={<FiHome />}
-                    title="Company Name"
+                    title="Company"
                     value={selectedUser?.companyName || 'N/A'}
                   />
                 </Col>
-                <Col md={6}>
+                <Col xs={12} md={6}>
                   <InfoCard 
                     icon={<FiActivity />}
                     title="Industry"
@@ -423,52 +418,47 @@ const PolicyList = () => {
 
             {/* Policies Section */}
             <section>
-              <h5 className="text-dark mb-4 fw-semibold">
+              <h5 className="text-dark mb-3 fw-semibold">
                 <FiShield className="me-2" />
-                Associated Policies
+                Policies
               </h5>
               
               {selectedUser && policies
                 .filter(policy => policy.userId === selectedUser.id)
                 .map(policy => (
-                  <Card key={policy.id} className="mb-3 shadow-sm policy-card">
-                    <Card.Body>
+                  <Card key={policy.id} className="mb-2 shadow-sm">
+                    <Card.Body className="p-2">
                       <div className="policy-status-indicator" 
                         style={{ backgroundColor: getStatusColor(policy) }}
                       />
-                      
-                      <Row className="g-3 align-items-center">
-                        <Col>
-                          <div className="d-flex align-items-center">
-                            <h6 className="mb-0 fw-semibold me-3">
-                              {policy.policyName}
-                            </h6>
-                            <Badge pill bg="light" text="dark">
-                              #{policy.policyNumber}
-                            </Badge>
-                          </div>
-                          <div className="text-muted small mt-2">
-                            <div className="d-flex align-items-center me-3">
-                              <FiCalendar className="me-1" />
-                              {new Date(policy.startDate).toLocaleDateString()}
-                            </div>
+                      <Row className="g-2 align-items-center">
+                        <Col xs={8}>
+                          <div className="d-flex flex-column">
                             <div className="d-flex align-items-center">
-                              <FiDollarSign className="me-1" />
-                              {new Intl.NumberFormat('en-KE', {
-                                style: 'currency',
-                                currency: 'KES'
-                              }).format(policy.amount)}
+                              <h6 className="mb-0 fw-semibold me-2">
+                                {policy.policyName}
+                              </h6>
+                              <Badge pill bg="light" text="dark">
+                                #{policy.policyNumber}
+                              </Badge>
+                            </div>
+                            <div className="text-muted small">
+                              <div className="d-flex align-items-center">
+                                <FiCalendar className="me-1" />
+                                {new Date(policy.startDate).toLocaleDateString()}
+                              </div>
                             </div>
                           </div>
                         </Col>
-                        <Col xs="auto">
-                          <div className="d-flex flex-column gap-2">
+                        <Col xs={4} className="text-end">
+                          <div className="d-flex flex-column gap-1">
                             {getStatusBadge(policy)}
-                            <div className="d-flex gap-2">
+                            <div className="d-flex gap-1 justify-content-end">
                               <Button 
                                 variant="danger" 
                                 size="sm" 
                                 onClick={() => handleDeletePolicy(policy.id)}
+                                className="py-0 px-2"
                               >
                                 Delete
                               </Button>
@@ -476,6 +466,7 @@ const PolicyList = () => {
                                 variant="primary" 
                                 size="sm" 
                                 onClick={() => handleViewPolicy(policy.id)}
+                                className="py-0 px-2"
                               >
                                 View
                               </Button>
@@ -488,15 +479,16 @@ const PolicyList = () => {
                 ))}
 
               {selectedUser && policies.filter(p => p.userId === selectedUser.id).length === 0 && (
-                <div className="text-center py-4 text-muted">
-                  <FiAlertCircle className="me-2" />
-                  No policies found for this user
+                <div className="text-center py-3 text-muted small">
+                  <FiAlertCircle className="me-1" />
+                  No policies found
                 </div>
               )}
             </section>
           </Offcanvas.Body>
         </div>
       </Offcanvas>
+
 
       <style jsx>{`
         .avatar-circle {
@@ -506,6 +498,7 @@ const PolicyList = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          background-color: rgba(255, 255, 255, 0.2);
         }
         
         .avatar-lg {
@@ -515,22 +508,13 @@ const PolicyList = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          background-color: #fff;
         }
         
         .user-item:hover {
           background-color: #f8f9fa;
-          transform: translateX(5px);
+          transform: translateX(3px);
           transition: all 0.2s ease;
-        }
-        
-        .policy-card {
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.2s ease;
-        }
-        
-        .policy-card:hover {
-          transform: translateY(-3px);
         }
         
         .policy-status-indicator {
@@ -541,10 +525,6 @@ const PolicyList = () => {
           width: 4px;
         }
         
-        .bg-gradient-primary {
-          background: linear-gradient(135deg, #3b82f6, #6366f1);
-        }
-        
         .alphabet-filter {
           min-width: 36px;
           padding: 0.25rem 0.5rem;
@@ -552,7 +532,20 @@ const PolicyList = () => {
         
         .search-input {
           border-radius: 8px;
-          overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+          .container-fluid {
+            padding: 1rem;
+          }
+          
+          .stat-card {
+            margin-bottom: 1rem;
+          }
+          
+          .user-item {
+            padding: 1rem;
+          }
         }
       `}</style>
     </div>
