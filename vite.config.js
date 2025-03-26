@@ -8,8 +8,8 @@ export default defineConfig({
     compression({
       algorithm: 'brotliCompress',
       ext: '.br',
-      threshold: 1024, // Compress files larger than 1KB
-      deleteOriginFile: false, // Keep original files alongside compressed ones
+      threshold: 1024, 
+      deleteOriginFile: false, 
     })
   ],
   optimizeDeps: {
