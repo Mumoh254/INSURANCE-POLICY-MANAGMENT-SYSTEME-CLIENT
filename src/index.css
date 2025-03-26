@@ -1,0 +1,389 @@
+/* Custom styles for select elements */
+import 'tui-calendar/dist/tui-calendar.min.css';
+
+*{
+  padding: 0 !important;
+  margin: 0;
+  box-sizing: border-box !important;
+}
+
+select[multiple] {
+  min-height: 150px;
+  padding: 10px;
+}
+
+select[multiple] option {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+select[multiple] option:hover {
+  background-color: #f8f9fa;
+}
+
+select[multiple] option:checked {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+}
+
+/* Notification alert animation */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+
+
+
+
+.nav-link {
+  transition: all 0.2s ease-in-out;
+  padding-bottom: 0.25rem;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.badge {
+  transition: transform 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.1);
+}
+
+/* InsuranceCalendar.css */
+
+.modern-event-box {
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 4px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  font-size: 0.85rem;
+}
+
+.event-time {
+  font-size: 0.75rem;
+}
+
+.modern-modal {
+  /* A wider, centered modal with a clean look */
+  max-width: 600px;
+}
+
+.modern-modal-header {
+  background: linear-gradient(135deg, #007aff, #00c6ff);
+  color: #fff;
+  border-bottom: none;
+}
+
+.modern-modal-body {
+  background-color: #f9f9f9;
+}
+
+.modern-modal-footer {
+  background-color: #f9f9f9;
+  border-top: none;
+}
+
+
+
+.calendar-container {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.event-card {
+  padding: 0.5rem;
+  margin: 2px;
+  border-radius: 4px;
+  border-left: 3px solid;
+  font-size: 0.9em;
+  position: relative;
+  z-index: 1;
+}
+
+.event-title {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.event-time {
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+.fc-daygrid-day-events {
+  margin: 0 !important;
+}
+
+.fc-event {
+  margin: 2px 0 !important;
+  border: none !important;
+}
+
+.modal-header {
+  border-bottom: 2px solid #007aff;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.detail-item {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.reminders-list .badge {
+  margin-right: 0.5rem;
+  border: 1px solid #dee2e6;
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+}
+
+
+
+.policy-edit-container {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.policy-card {
+  border-radius: 12px;
+  border: none;
+}
+
+.policy-card-header {
+  background: #1a237e;
+  color: white;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1.5rem 2rem;
+}
+
+.policy-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.policy-meta {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.policy-badge {
+  font-size: 0.85em;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
+}
+
+.policy-card-body {
+  padding: 2rem;
+}
+
+.section-title {
+  color: #1a237e;
+  border-bottom: 2px solid #e8eaf6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.user-details-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.form-control[readonly] {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.action-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.save-button {
+  background: #1a237e;
+  border-color: #1a237e;
+}
+
+.save-button:hover {
+  background: #0d47a1;
+  border-color: #0d47a1;
+}
+
+.policy-card-footer {
+  background: #e8eaf6;
+  border-radius: 0 0 12px 12px;
+  padding: 1rem 2rem;
+}
+
+.policy-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-text {
+  color: #1a237e;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.policy-error-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.error-alert {
+  max-width: 600px;
+  text-align: center;
+  border-radius: 12px;
+}
+
+
+h1 ,  h2  , option ,  h3  ,  h4  ,  h5 ,  p {
+  color: #333   !important;
+}
+.color{
+  color: #1a237e !important;
+}
+.bg{
+  background: #1a237e !important;
+}
+
+.bg-green{
+  background: green !important;
+}
+
+.bg-red{
+  background: red !important;
+}
+.bg-up{
+  background:  #ffdaa7 !important;
+  color: blue  !important;
+}
+{
+
+  '#ffcc00', '#5856d6', '#96CEB4', '#007aff', '#ff2d55',
+  '#D4A5A5', '#88D8B0', '#B8A9C9', '#5BC8AC', '#ff3b30'
+}
+.color{
+  color: '#88D8B0';
+}
+
+button{
+  outline: 0.5px  solid  rgba(0, 0, 255, 0.097) !important;
+  border: none  !important;
+}
+
+
+.notification-popup {
+  z-index: 99999 !important;
+  border-left: 4px solid #3b82f6 !important;
+  min-width: 400px !important;
+}
+
+
+.swal-high-zindex {
+  z-index: 9999 !important;
+}
+
+
+.fixed{
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.fixed > link{
+  color: "red"  !important;
+}
+
+
+
+.user-detail-item {
+  padding: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.user-detail-item small {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.text-light-80 {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.policy-detail {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+}
+
+.policy-status-bar {
+  transition: background-color 0.3s ease;
+}
+
+.text-monospace {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+
+
