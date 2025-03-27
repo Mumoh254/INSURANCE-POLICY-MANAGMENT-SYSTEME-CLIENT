@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Modal, Navbar, Nav, Badge } from 'react-bootstrap';
+import { Button, Modal, Navbar, Container, Nav, Badge } from 'react-bootstrap';
 import { FaUserPlus, FaCar, FaUserGraduate, FaHeartbeat, FaUser, FaFile } from 'react-icons/fa';
 import PolicyForm from './policyForm';
 import UserForm from './userForm';
@@ -29,27 +29,75 @@ const CreationMenu = () => {
 
   return (
     <div className="p-3 p-md-5 rounded-4">
-      <Navbar className="mb-4 p-2 p-md-4 bg">
-        <Navbar.Brand className="text-light fs-5 fs-md-4">
-          USERS & POLICY CREATION CENTER
-        </Navbar.Brand>
-        <Nav className="ms-auto flex-column flex-md-row align-items-end align-items-md-center">
-          <Nav.Item className="me-md-3 mb-2 mb-md-0 d-flex align-items-center">
-            <FaUser className="me-2 text-light fs-4 fs-md-3" />
-            <span className="text-light me-2">Users:</span>
-            <Badge pill className="fs-6 fs-md-5 px-3 py-2 bg-primary">
-              {counts.users}
-            </Badge>
-          </Nav.Item>
-          <Nav.Item className="d-flex align-items-center">
-            <FaFile className="me-2 text-light fs-4 fs-md-3" />
-            <span className="text-light me-2">Policies:</span>
-            <Badge pill className="fs-6 fs-md-5 px-3 py-2 bg-success">
-              {counts.policies}
-            </Badge>
-          </Nav.Item>
-        </Nav>
-      </Navbar>
+   <Navbar className="mb-4 p-2 p-md-4 bg">
+      <Container>
+        <div className="d-flex flex-column creation-navbar">
+          {/* Heading Row */}
+          <div className="w-100">
+            <Navbar.Brand className="text-light creation-heading text-center">
+              USERS & POLICY CREATION CENTER
+            </Navbar.Brand>
+          </div>
+          {/* Icons Row */}
+          <div className="d-flex flex-row justify-content-center mt-2 creation-icons">
+            <Nav.Item className="d-flex align-items-center me-3">
+              <FaUser className="me-1 text-light creation-icon" />
+              <span className="text-light me-1">Users:</span>
+              <Badge pill className="fs-6 px-2 py-1 bg-primary">
+                {counts.users}
+              </Badge>
+            </Nav.Item>
+            <Nav.Item className="d-flex align-items-center">
+              <FaFile className="me-1 text-light creation-icon" />
+              <span className="text-light me-1">Policies:</span>
+              <Badge pill className="fs-6 px-2 py-1 bg-success">
+                {counts.policies}
+              </Badge>
+            </Nav.Item>
+          </div>
+        </div>
+      </Container>
+      <style jsx>{`
+        /* Default desktop styles */
+        .creation-heading {
+          font-size: 1.5rem;
+        }
+        .creation-icon {
+          font-size: 1.5rem;
+        }
+        /* Responsive tweaks for small devices */
+        @media (max-width: 576px) {
+          .creation-navbar {
+            /* Adjust overall spacing */
+            padding: 0.5rem;
+          }
+          .creation-heading {
+            font-size: 1rem;
+            padding: 0.25rem 0;
+          }
+          .creation-icon {
+            font-size: 1.2rem;
+          }
+          .creation-icons {
+            margin-top: 0.5rem;
+          }
+          .creation-icons span {
+            font-size: 0.9rem;
+          }
+          .fs-6 {
+            font-size: 0.8rem !important;
+          }
+          .px-2 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+          }
+          .py-1 {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+          }
+        }
+      `}</style>
+    </Navbar>
 
       <div className="row g-3 mt-md-5">
         {/* New User Button */}
