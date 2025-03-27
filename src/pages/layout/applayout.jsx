@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Container, Badge, Offcanvas, Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { 
   faClock,
   faFileContract,
@@ -13,8 +13,14 @@ import {
   faHeart,
   faCar,
   faUser,
+  faShieldHalved,
+  faPhone,
+  faEnvelope,
+  faShield,
+  faCircleCheck,
   faUserGraduate
 } from '@fortawesome/free-solid-svg-icons';
+import { Alert } from 'react-bootstrap';  // Add this import
 import Policies from '../policies';
 import Charts from '../chart';
 import Notifications from '../notifications';
@@ -61,55 +67,103 @@ const Footer = () => {
     }
   }
   return (
-    <footer className="bg-black text-white py-4 mt-auto border-top border-secondary">
-      <Container fluid className="px-2 px-md-4">
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-          <div className="d-flex flex-wrap justify-content-center gap-2 gap-md-3">
-            {[
-              { to: "/policy-holder", icon: faUserShield },
-              { to: "/sheets", icon: faFileContract },
-              { to: "/analytics", icon: faChartLine },
-              { to: "/calender", icon: faCalendarAlt },
-              { to: "/notifications", icon: faBell },
-            ].map((link) => (
-              <NavLink 
-                key={link.to}
-                to={link.to} 
-                className="text-decoration-none"
-              >
-                <FontAwesomeIcon 
-                  icon={link.icon}
-                  className="text-primary hover-scale px-2 px-md-3"
-                  style={{ 
-                    fontSize: '1.5rem', 
-                    transition: 'transform 0.2s', 
-                    cursor: 'pointer' 
-                  }}
-                />
-              </NavLink>
-            ))}
-          </div>
-          <div className="d-flex align-items-center gap-2 text-center">
-            <span className="text-muted">Active Admin User:</span>
-            <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
-              backgroundColor: '#dc3545', 
-              border: '1px solid #ff6b6b',
-              boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
-            }}>
-              <FontAwesomeIcon icon={faUserShield} className="me-2" />
-              {userName}
-            </Badge>
-          </div>
+<footer className="bg-black text-white py-4 mt-auto border-top border-secondary">
+  <Container fluid className="px-2 px-md-4">
+    {/* Security Alert */}
+    <Alert variant="danger" className="d-flex align-items-center mb-4" dismissible>
+      <FontAwesomeIcon icon={faShieldHalved} className="me-2 fs-4" />
+      <div>
+        <strong>SECURITY ALERT:</strong> In case of suspected data breach, immediately contact:
+        <div className="mt-1">
+          <a href="tel:+2547400453555" className="text-white text-decoration-none me-3">
+            <FontAwesomeIcon icon={faPhone} className="me-1" />
+            +254 740 0453555
+          </a>
+          <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
+            <FontAwesomeIcon icon={faEnvelope} className="me-1" />
+            infowelttallis@gmail.com
+          </a>
         </div>
-        <div className="text-center mt-3 text-secondary">
-          <small>
-            &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 insure-Sys. All rights reserved.
-            <span className="mx-2">|</span>
-            Secure Admin Portal | System Scan Approved |
-          </small>
+      </div>
+    </Alert>
+
+    <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+      {/* Navigation Icons */}
+      <div className="d-flex flex-wrap justify-content-center gap-2 gap-md-3">
+        {[
+          { to: "/policy-holder", icon: faUserShield },
+          { to: "/sheets", icon: faFileContract },
+          { to: "/analytics", icon: faChartLine },
+          { to: "/calender", icon: faCalendarAlt },
+          { to: "/notifications", icon: faBell },
+        ].map((link) => (
+          <NavLink 
+            key={link.to}
+            to={link.to} 
+            className="text-decoration-none"
+          >
+            <FontAwesomeIcon 
+              icon={link.icon}
+              className="text-primary hover-scale px-2 px-md-3"
+              style={{ 
+                fontSize: '1.5rem', 
+                transition: 'transform 0.2s', 
+                cursor: 'pointer' 
+              }}
+            />
+          </NavLink>
+        ))}
+      </div>
+
+      {/* Admin Status */}
+      <div className="d-flex align-items-center gap-2 text-center">
+        <span className="text-muted">Active Admin User:</span>
+        <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
+          backgroundColor: '#dc3545', 
+          border: '1px solid #ff6b6b',
+          boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
+        }}>
+          <FontAwesomeIcon icon={faUserShield} className="me-2" />
+          {userName}
+        </Badge>
+      </div>
+    </div>
+
+    {/* Contact & Legal */}
+    <div className="row mt-4 text-center">
+      <div className="col-md-6 mb-3 mb-md-0">
+        <div className="d-flex justify-content-center gap-3">
+          <a href="tel:+2547400453555" className="text-white text-decoration-none">
+            <FontAwesomeIcon icon={faPhone} className="me-2" />
+            Emergency Support
+          </a>
+          <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
+            <FontAwesomeIcon icon={faEnvelope} className="me-2" />
+            Security Team
+          </a>
         </div>
-      </Container>
-    </footer>
+      </div>
+      <div className="col-md-6">
+        <small className="text-secondary">
+          &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 insure-Sys. All rights reserved.
+          <span className="mx-2">|</span>
+          <span className="d-block d-md-inline mt-1 mt-md-0">
+            Secure Admin Portal | ISO 27001 Certified | GDPR Compliant
+          </span>
+        </small>
+      </div>
+    </div>
+
+    {/* Continuous Monitoring */}
+    <div className="text-center mt-3">
+      <Badge bg="dark" className="px-3 py-2">
+        <FontAwesomeIcon icon={faShield} className="text-success me-2" />
+        Real-time System Monitoring Active
+        <FontAwesomeIcon icon={faCircleCheck} className="text-success ms-2" />
+      </Badge>
+    </div>
+  </Container>
+</footer>
   );
 };
 
@@ -310,10 +364,10 @@ const ProtectedLayout = () => {
               <div className="mt-4 pt-2 border-top border-secondary">
                 <div className="d-flex align-items-center gap-2 text-center pt-2">
                   <span className="text-muted">Logged in as:</span>
-                  <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
-                    backgroundColor: '#dc3545', 
-                    border: '1px solid #ff6b6b',
-                    boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
+                  <Badge pill className="fs-8 px-3 py-2  bg-red" style={{ 
+                    backgroundColor: 'red', 
+                    border: '1px solid red',
+                    boxShadow: '0 2px 4px rgba(255, 0, 25)'
                   }}>
                     <FontAwesomeIcon icon={faUserShield} className="me-2" />
                     {userName}
