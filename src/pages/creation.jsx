@@ -34,8 +34,8 @@ const CreationMenu = () => {
         <div className="d-flex flex-column creation-navbar">
           {/* Heading Row */}
           <div className="w-100">
-            <Navbar.Brand className="text-light creation-heading text-center">
-              USERS & POLICY CREATION CENTER
+            <Navbar.Brand className="text-light creation-heading text-start  ">
+             <span className='fs-5' > USERS & POLICY CREATION CENTER</span>
             </Navbar.Brand>
           </div>
           {/* Icons Row */}
@@ -57,46 +57,7 @@ const CreationMenu = () => {
           </div>
         </div>
       </Container>
-      <style jsx>{`
-        /* Default desktop styles */
-        .creation-heading {
-          font-size: 1.5rem;
-        }
-        .creation-icon {
-          font-size: 1.5rem;
-        }
-        /* Responsive tweaks for small devices */
-        @media (max-width: 576px) {
-          .creation-navbar {
-            /* Adjust overall spacing */
-            padding: 0.5rem;
-          }
-          .creation-heading {
-            font-size: 1rem;
-            padding: 0.25rem 0;
-          }
-          .creation-icon {
-            font-size: 1.2rem;
-          }
-          .creation-icons {
-            margin-top: 0.5rem;
-          }
-          .creation-icons span {
-            font-size: 0.9rem;
-          }
-          .fs-6 {
-            font-size: 0.8rem !important;
-          }
-          .px-2 {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-          }
-          .py-1 {
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.25rem !important;
-          }
-        }
-      `}</style>
+   
     </Navbar>
 
       <div className="row g-3 mt-md-5">

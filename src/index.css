@@ -537,4 +537,47 @@ body {
   }
 }
 
+@media (max-width: 576px) {
+  .creation-navbar {
+    /* Adjust overall spacing */
+    padding: 0.5rem;
+  }
+  .creation-heading {
+    font-size: 1rem;
+    padding: 0.25rem 0;
+  }
+  .creation-icon {
+    font-size: 1.2rem;
+  }
+  .creation-icons {
+    margin-top: 0.5rem;
+  }
+  .creation-icons span {
+    font-size: 0.9rem;
+  }
+  .fs-6 {
+    font-size: 0.8rem !important;
+  }
+  .px-2 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .py-1 {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+}
+
+
+
+  /* Default desktop styles */
+  .creation-heading {
+    font-size: 1.5rem;
+  }
+  .creation-icon {
+    font-size: 1.5rem;
+  }
+  /* Responsive tweaks for small devices */
+
+
 
