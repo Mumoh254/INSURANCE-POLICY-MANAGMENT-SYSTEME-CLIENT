@@ -132,7 +132,7 @@ const Policies = () => {
 
   return (
     <div className="p-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 exel-container">
         <h2 className="color">Insurance Policies Management</h2>
         <div>
           <Button variant="success" onClick={() => {
@@ -149,7 +149,7 @@ const Policies = () => {
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Policies');
             XLSX.writeFile(workbook, `policies_${Date.now()}.xlsx`);
-          }} className="me-2 bg-green">
+          }} className="me-2 exel bg-green">
             Export to Excel
           </Button>
           <Button className="bg" onClick={() => navigate('/create-admin')}>

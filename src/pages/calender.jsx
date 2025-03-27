@@ -88,7 +88,7 @@ const InsuranceCalendar = () => {
 
   const fetchEvents = async () => {
     try {
-      const { data } = await axios.get('http://localhost:8000/api/insurance/events/event');
+      const { data } = await axios.get('https://insurance-v1-api.onrender.com/api/insurance/events/event');
       const safeEvents = data.map((event, index) => ({
         id: String(event.id),
         title: event.title,
@@ -119,7 +119,7 @@ const InsuranceCalendar = () => {
 
   const fetchAdminUsers = async () => {
     try {
-      const { data } = await axios.get('http://localhost:8000/api/insurance/users');
+      const { data } = await axios.get('https://insurance-v1-api.onrender.com/api/insurance/users');
       const adminUsers = data.users?.filter(user => user.role === 'ADMIN') || [];
 
       setState(prev => ({
@@ -179,7 +179,7 @@ const InsuranceCalendar = () => {
           .filter(h => !isNaN(h))
       };
 
-      const { data } = await axios.post('http://localhost:8000/api/insurance/event', sanitizedData);
+      const { data } = await axios.post('https://insurance-v1-api.onrender.com/api/insurance/event', sanitizedData);
     
       const newEvent = {
         id: String(data.id),

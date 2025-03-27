@@ -541,6 +541,17 @@ body {
   .creation-navbar {
     /* Adjust overall spacing */
     padding: 0.5rem;
+
+  }
+
+  .exel{
+    margin-bottom: 12px;
+  }
+
+  .exel-container{
+    padding: 0 !important;
+   
+   
   }
   .creation-heading {
     font-size: 1rem;
