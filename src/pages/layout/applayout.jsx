@@ -9,7 +9,11 @@ import {
   faChartLine,
   faCalendarAlt,
   faBell,
-  faUserShield
+  faUserShield,
+  faHeart,
+  faCar,
+  faUser,
+  faUserGraduate
 } from '@fortawesome/free-solid-svg-icons';
 import Policies from '../policies';
 import Charts from '../chart';
@@ -87,7 +91,11 @@ const Footer = () => {
           </div>
           <div className="d-flex align-items-center gap-2 text-center">
             <span className="text-muted">Active Admin User:</span>
-            <Badge pill bg="primary" className="fs-6 px-3 py-2">
+            <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
+              backgroundColor: '#dc3545', 
+              border: '1px solid #ff6b6b',
+              boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
+            }}>
               <FontAwesomeIcon icon={faUserShield} className="me-2" />
               {userName}
             </Badge>
@@ -112,6 +120,17 @@ const ProtectedLayout = () => {
   const authToken = localStorage.getItem('authToken');
   const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
+
+  const token = localStorage.getItem('authToken');
+  let userName = 'Live';
+  if (token) {
+    try {
+      const decoded = jwt_decode.jwtDecode(token);
+      userName = decoded.name || decoded.email || 'Live';
+    } catch (error) {
+      console.error('Token decode error:', error);
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -191,14 +210,13 @@ const ProtectedLayout = () => {
             {/* Desktop Right Side Items */}
             <Nav className="align-items-center gap-3 d-none d-lg-flex">
               <div className="text-white d-flex align-items-center gap-2">
-               
                 <RealTimeClock />
               </div>
               <Button
                 onClick={handleLogout}
                 variant="danger"
                 size="lg"
-                className="px-3  bg-red"
+                className="px-3 bg-red"
               >
                 Logout
               </Button>
@@ -262,8 +280,46 @@ const ProtectedLayout = () => {
                 {link.text}
               </Nav.Link>
             ))}
+            
+            {/* Quick Links Section */}
             <div className="mt-3 px-3 pt-2 border-top border-secondary">
               <RealTimeClock />
+              <div className="mt-3 d-flex flex-column gap-2">
+                <h6 className="text-muted mb-2">Quick Create:</h6>
+                {[
+                  { to: "/create-health", text: "Health Policy", icon: faHeart },
+                  { to: "/create-car", text: "Car Policy", icon: faCar },
+                  { to: "/create-user", text: "User Profile", icon: faUser },
+                  { to: "/create-student", text: "Student Policy", icon: faUserGraduate },
+                ].map((link) => (
+                  <Nav.Link
+                    key={link.to}
+                    as={NavLink}
+                    to={link.to}
+                    onClick={() => setShowMobileMenu(false)}
+                    className="py-2 px-3 d-flex align-items-center gap-3"
+                    style={{ fontSize: '0.9rem' }}
+                  >
+                    <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
+                    {link.text}
+                  </Nav.Link>
+                ))}
+              </div>
+              
+              {/* Logged In As Section */}
+              <div className="mt-4 pt-2 border-top border-secondary">
+                <div className="d-flex align-items-center gap-2 text-center pt-2">
+                  <span className="text-muted">Logged in as:</span>
+                  <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
+                    backgroundColor: '#dc3545', 
+                    border: '1px solid #ff6b6b',
+                    boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
+                  }}>
+                    <FontAwesomeIcon icon={faUserShield} className="me-2" />
+                    {userName}
+                  </Badge>
+                </div>
+              </div>
             </div>
           </Nav>
         </Offcanvas.Body>
@@ -301,6 +357,10 @@ const App = () => {
           <Route path="/edit-policy/:id" element={<EditPolicy />} />
           <Route path="/users/:id" element={<UserDetails />} />
           <Route path="/create-admin" element={<AdminManagement />} />
+          <Route path="/create-health" element={<div>Health Policy Creation</div>} />
+          <Route path="/create-car" element={<div>Car Policy Creation</div>} />
+          <Route path="/create-user" element={<div>User Profile Creation</div>} />
+          <Route path="/create-student" element={<div>Student Policy Creation</div>} />
           <Route path="/" element={<Navigate to="/policies" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

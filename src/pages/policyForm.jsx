@@ -24,7 +24,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
       </Card.Header>
       <Card.Body>
         <Row className="mb-3">
-          <Col md={6}>
+          <Col xs={12} md={6} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Insurance Type</Form.Label>
               <Form.Select
@@ -44,7 +44,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               </Form.Select>
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Policy Subtype</Form.Label>
               <Form.Select
@@ -71,7 +71,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
         </Row>
   
         <Row className="mb-3">
-          <Col md={6}>
+          <Col xs={12} md={6} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Chassis Number</Form.Label>
               <Form.Control
@@ -87,7 +87,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>VIN</Form.Label>
               <Form.Control
@@ -106,7 +106,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
         </Row>
   
         <Row className="mb-3">
-          <Col md={6}>
+          <Col xs={12} md={6} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Year of Manufacturing</Form.Label>
               <Form.Control
@@ -125,7 +125,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Fuel Type</Form.Label>
               <Form.Select
@@ -149,7 +149,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
         </Row>
   
         <Row className="mb-3">
-          <Col md={4}>
+          <Col xs={12} md={4} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Car Registration Number</Form.Label>
               <Form.Control
@@ -165,7 +165,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col xs={12} md={4} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Vehicle Model</Form.Label>
               <Form.Control
@@ -181,7 +181,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col xs={12} md={4}>
             <Form.Group>
               <Form.Label>Body Type</Form.Label>
               <Form.Control
@@ -200,7 +200,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
         </Row>
   
         <Row className="mb-3">
-          <Col md={4}>
+          <Col xs={12} md={4} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Steering Side</Form.Label>
               <Form.Select
@@ -220,7 +220,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               </Form.Select>
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col xs={12} md={4} className="mb-3 mb-md-0">
             <Form.Group>
               <Form.Label>Annual Value (KES)</Form.Label>
               <Form.Control
@@ -233,7 +233,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col xs={12} md={4}>
             <Form.Group>
               <Form.Label>Monthly Value (KES)</Form.Label>
               <Form.Control
@@ -249,7 +249,7 @@ const CarFormFields = memo(({ formData, setFormData }) => {
         </Row>
   
         <Row className="mb-3">
-          <Col>
+          <Col xs={12}>
             <Form.Group>
               <Form.Label>Color</Form.Label>
               <Form.Control
@@ -278,7 +278,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
     <Card.Body>
       <h5 className="mb-3">Personal Information</h5>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Full Name</Form.Label>
             <Form.Control 
@@ -292,7 +292,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Date of Birth</Form.Label>
             <Form.Control 
@@ -309,7 +309,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
       </Row>
       
       <Row className="mb-3">
-        <Col>
+        <Col xs={12}>
           <Form.Group>
             <Form.Label>Social Security Number (Optional)</Form.Label>
             <Form.Control 
@@ -326,7 +326,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Beneficiary Information</h5>
       <Row className="mb-3">
-        <Col md={4}>
+        <Col xs={12} md={4} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Beneficiary Name</Form.Label>
             <Form.Control
@@ -340,7 +340,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col xs={12} md={4} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Relationship</Form.Label>
             <Form.Control
@@ -354,7 +354,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col xs={12} md={4}>
           <Form.Group>
             <Form.Label>Benefit Allocation (%)</Form.Label>
             <Form.Control
@@ -375,7 +375,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Medical Information</h5>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Current Health Status</Form.Label>
             <Form.Control 
@@ -389,7 +389,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Pre-existing Conditions</Form.Label>
             <Form.Control
@@ -405,7 +405,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Medical History</Form.Label>
             <Form.Control
@@ -421,7 +421,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Family Medical History (Optional)</Form.Label>
             <Form.Control
@@ -440,7 +440,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Coverage Details</h5>
       <Row className="mb-3">
-        <Col md={4}>
+        <Col xs={12} md={4} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Type of Plan</Form.Label>
             <Form.Select
@@ -459,7 +459,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
           </Form.Group>
         </Col>
 
-        <Col md={4}>
+        <Col xs={12} md={4} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Coverage Limit</Form.Label>
             <Form.Control
@@ -475,7 +475,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col xs={12} md={4}>
           <Form.Group>
             <Form.Label>Premium Amount</Form.Label>
             <Form.Control
@@ -493,7 +493,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={4}>
+        <Col xs={12} md={4} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Payment Frequency</Form.Label>
             <Form.Select
@@ -510,7 +510,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col md={8}>
+        <Col xs={12} md={8}>
           <Form.Group>
             <Form.Label>Payment Methods</Form.Label>
             <Form.Control
@@ -528,7 +528,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Exclusions</h5>
       <Row className="mb-3">
-        <Col>
+        <Col xs={12}>
           <Form.Group>
             <Form.Label>Exclusions</Form.Label>
             <Form.Control
@@ -548,7 +548,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Network Hospitals and Clinics</h5>
       <Row className="mb-3">
-        <Col>
+        <Col xs={12}>
           <Form.Group>
             <Form.Label>Approved Providers</Form.Label>
             <Form.Control
@@ -568,7 +568,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Additional Benefits</h5>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Wellness Programs & Checkups</Form.Label>
             <Form.Control
@@ -582,7 +582,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Ambulance & Emergency Services</Form.Label>
             <Form.Control
@@ -598,7 +598,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Dental & Vision Coverage</Form.Label>
             <Form.Control
@@ -612,7 +612,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Mental Health & Counseling</Form.Label>
             <Form.Control
@@ -630,7 +630,7 @@ const HealthFormFields = memo(({ formData, setFormData }) => (
 
       <h5 className="mb-3">Digital Signature</h5>
       <Row className="mb-3">
-        <Col>
+        <Col xs={12}>
           <Form.Group>
             <Form.Label>Signature</Form.Label>
             <Form.Control
@@ -658,7 +658,7 @@ const StudentFormFields = memo(({ formData, setFormData }) => (
     </Card.Header>
     <Card.Body>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Student Name</Form.Label>
             <Form.Control
@@ -674,7 +674,7 @@ const StudentFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>National ID</Form.Label>
             <Form.Control
@@ -692,7 +692,7 @@ const StudentFormFields = memo(({ formData, setFormData }) => (
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
           <Form.Group>
             <Form.Label>Admission Number</Form.Label>
             <Form.Control
@@ -708,7 +708,7 @@ const StudentFormFields = memo(({ formData, setFormData }) => (
             />
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>School</Form.Label>
             <Form.Control
@@ -726,7 +726,7 @@ const StudentFormFields = memo(({ formData, setFormData }) => (
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Course</Form.Label>
             <Form.Control
@@ -906,16 +906,14 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
         confirmButtonText: "OK",
       });
 
-
-       // Show detailed email status if there was an issue
-    if (data.emailStatus && !data.emailStatus.success) {
-      Swal.fire({
-        title: 'Email Notification Status',
-        text: data.emailStatus.message,
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
-    }
+      if (data.emailStatus && !data.emailStatus.success) {
+        Swal.fire({
+          title: 'Email Notification Status',
+          text: data.emailStatus.message,
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+      }
 
       printReceipt({
         policy: data.policy,
@@ -947,7 +945,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
         <Card.Body>
           <Form onSubmit={handleSubmit}>
             <Row className="mb-4">
-              <Col md={6}>
+              <Col xs={12} md={6} className="mb-3 mb-md-0">
                 <Form.Group>
                   <Form.Label>Select User</Form.Label>
                   <Form.Select
@@ -964,7 +962,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col xs={12} md={6}>
                 <Form.Group>
                   <Form.Label>Policy Type</Form.Label>
                   <Form.Select
@@ -1033,7 +1031,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
             </Row>
 
             <Row className="mb-4">
-              <Col md={8}>
+              <Col xs={12} md={8} className="mb-3 mb-md-0">
                 <Form.Group>
                   <Form.Label>Policy Name</Form.Label>
                   <Form.Control
@@ -1044,7 +1042,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col xs={12} md={4}>
                 <Form.Group>
                   <Form.Label>Insurance Provider</Form.Label>
                   <Form.Select
@@ -1073,7 +1071,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
             {policyType === 'STUDENT_ATTACHMENT' && <StudentFormFields formData={formData} setFormData={setFormData} />}
 
             <Row className="mb-4">
-              <Col md={4}>
+              <Col xs={12} md={4} className="mb-3 mb-md-0">
                 <Form.Group>
                   <Form.Label>Payment Frequency</Form.Label>
                   <Form.Select
@@ -1086,7 +1084,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col xs={12} md={4} className="mb-3 mb-md-0">
                 <Form.Group>
                   <Form.Label>Amount</Form.Label>
                   <Form.Control
@@ -1098,7 +1096,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col xs={12} md={4}>
                 <Form.Group>
                   <Form.Label>Start Date</Form.Label>
                   <Form.Control
@@ -1112,7 +1110,7 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
             </Row>
 
             <Row className="mb-4">
-              <Col md={4}>
+              <Col xs={12} md={4}>
                 <Form.Group>
                   <Form.Label>End Date</Form.Label>
                   <Form.Control
