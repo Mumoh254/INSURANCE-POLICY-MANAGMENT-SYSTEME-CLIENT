@@ -5,13 +5,12 @@ import PolicyForm from './policyForm';
 import UserForm from './userForm';
 
 const CreationMenu = () => {
-  // Parse counts as numbers; default to 0 if not present.
   const [counts, setCounts] = useState({
     users: Number(localStorage.getItem('dailyUsers')) || 0,
     policies: Number(localStorage.getItem('dailyPolicies')) || 0
   });
   const [showModal, setShowModal] = useState(false);
-  const [creationType, setCreationType] = useState('user'); // 'user' or 'policy'
+  const [creationType, setCreationType] = useState('user');
   const [policyType, setPolicyType] = useState('CAR');
 
   const handleUserSuccess = () => {
@@ -29,64 +28,79 @@ const CreationMenu = () => {
   };
 
   return (
-    <div className="p-5  rounded-4 ">
-      <Navbar  className="mb-4 px-5  bg ">
-        <Navbar.Brand>   <span   className='text-light' > USERS &&  POLICY  CREATION CENTRE .</span> </Navbar.Brand>
-        <Nav className="ms-auto">
-          <Nav.Item className="me-3 d-flex align-items-center">
-            <FaUser size={38} className="me-2 text-light " />
-           <span className='text-light' >Created Users Count:</span> <Badge   style={{ fontSize: "1.4rem" , margin: "4px",  padding: "10px" , color: "#fff"}}> {counts.users}</Badge>
+    <div className="p-3 p-md-5 rounded-4">
+      <Navbar className="mb-4 p-2 p-md-4 bg">
+        <Navbar.Brand className="text-light fs-5 fs-md-4">
+          USERS & POLICY CREATION CENTER
+        </Navbar.Brand>
+        <Nav className="ms-auto flex-column flex-md-row align-items-end align-items-md-center">
+          <Nav.Item className="me-md-3 mb-2 mb-md-0 d-flex align-items-center">
+            <FaUser className="me-2 text-light fs-4 fs-md-3" />
+            <span className="text-light me-2">Users:</span>
+            <Badge pill className="fs-6 fs-md-5 px-3 py-2 bg-primary">
+              {counts.users}
+            </Badge>
           </Nav.Item>
-          <Nav.Item className="d-flex align-items-center  ">
-            <FaFile size={38} className="me-2 text-light" />
-         <span className='text-light' >  Created   Policies Count: </span> <Badge  style={{ fontSize: "1.4rem" , margin: "4px",  padding: "10px"}}>{counts.policies}</Badge>
+          <Nav.Item className="d-flex align-items-center">
+            <FaFile className="me-2 text-light fs-4 fs-md-3" />
+            <span className="text-light me-2">Policies:</span>
+            <Badge pill className="fs-6 fs-md-5 px-3 py-2 bg-success">
+              {counts.policies}
+            </Badge>
           </Nav.Item>
         </Nav>
       </Navbar>
 
-      <div className="d-flex gap-3 flex-wrap mt-5 min-vw-100">
+      <div className="row g-3 mt-md-5">
         {/* New User Button */}
-        <Button  
-          variant="outline-primary"
-          onClick={() => {
-            setCreationType('user');
-            setShowModal(true);
-          }}
-          className="d-flex align-items-center gap-2 bg-primary text-white px-4"
-        >
-          <FaUserPlus size={100} />
-          <span>New User</span>
-        </Button>
+        <div className="col-12 col-md-6 col-xl-3">
+          <Button
+            variant="primary"
+            onClick={() => {
+              setCreationType('user');
+              setShowModal(true);
+            }}
+            className="w-100 h-100 d-flex flex-column flex-md-row align-items-center justify-content-center p-3"
+          >
+            <FaUserPlus className="mb-2 mb-md-0 me-md-3 fs-1" />
+            <span className="fs-5 fs-md-6 text-center">New User</span>
+          </Button>
+        </div>
 
         {/* Policy Type Buttons */}
         {['CAR', 'STUDENT_ATTACHMENT', 'HEALTHCARE'].map((type) => (
-          <Button
-            key={type}
-            variant="outline-success"
-            onClick={() => {
-              setCreationType('policy');
-              setPolicyType(type);
-              setShowModal(true);
-            }}
-            className="d-flex align-items-center gap-5 m-2 py-5 bg-success text-white px-4"
-          >
-            {type === 'CAR' && <FaCar size={48} />}
-            {type === 'STUDENT_ATTACHMENT' && <FaUserGraduate size={48} />}
-            {type === 'HEALTHCARE' && <FaHeartbeat size={48} />}
-            <span>{type.replace('_', ' ')} Policy</span>
-          </Button>
+          <div key={type} className="col-12 col-md-6 col-xl-3">
+            <Button
+              variant="success"
+              onClick={() => {
+                setCreationType('policy');
+                setPolicyType(type);
+                setShowModal(true);
+              }}
+              className="w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3"
+            >
+              <div className="mb-2">
+                {type === 'CAR' && <FaCar className="fs-1" />}
+                {type === 'STUDENT_ATTACHMENT' && <FaUserGraduate className="fs-1" />}
+                {type === 'HEALTHCARE' && <FaHeartbeat className="fs-1" />}
+              </div>
+              <span className="fs-5 fs-md-6 text-center">
+                {type.replace('_', ' ')} Policy
+              </span>
+            </Button>
+          </div>
         ))}
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        <Modal.Header closeButton className="bg-dark text-light">
+          <Modal.Title className="fs-5 fs-md-4">
             {creationType === 'user'
               ? 'New User Creation'
               : `${policyType.replace('_', ' ')} Policy Creation`}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="p-3 p-md-4">
           {creationType === 'user' ? (
             <UserForm 
               onSuccess={handleUserSuccess}

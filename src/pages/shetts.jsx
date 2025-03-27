@@ -220,7 +220,7 @@ const PolicyList = () => {
   );
 
   return (
-    <div className="container-fluid py-4 bg-primary-subtle rounded-4 p-5">
+    <div className="container-fluid py-4 rounded-4 p-5">
     {/* Enhanced Statistics Section */}
     <Row className="g-3 g-md-4 mb-4 mb-md-5">
         <StatCard 
@@ -259,124 +259,124 @@ const PolicyList = () => {
       </Row>
       {/* Users List */}
       <Card className="shadow-sm border-0 mb-4">
-        <Card.Header className="bg-dark text-white py-2 py-md-3">
-          <Row className="align-items-center">
-            <Col xs={8} md={6}>
-              <h3 className="h4 mb-0">
-                <FiUser className="me-2 text-light" />
-                <span className="text-light">Registered Users</span>
-              </h3>
-            </Col>
-            <Col xs={4} md={6} className="text-end">
-              <div className="d-flex flex-column flex-md-row gap-2 justify-content-end">
-                <Badge pill bg="light" text="dark" className="me-md-2">
-                  {users.length} Total
-                </Badge>
-                <Badge pill bg="light" text="dark">
-                  {usersWithLocation.length} Filtered
-                </Badge>
-              </div>
-            </Col>
-          </Row>
-        </Card.Header>
-        <Card.Body className="p-2 p-md-3">
-          {renderUserControls()}
-          <ListGroup variant="flush">
-            {usersWithLocation.map(user => (
-              <ListGroup.Item 
-                key={user.id}
-                className="py-2 user-item"
-                action
-                onClick={() => handleUserSelect(user)}
-              >
-                <Row className="align-items-center g-2">
-                  <Col xs="auto">
-                    <div className="avatar-circle bg-primary" style={{ width: '35px', height: '35px' }}>
-                      <FiUser className="text-white" size={18} />
-                    </div>
-                  </Col>
-                  <Col>
-                    <div className="d-flex flex-column">
-                      <div className="d-flex flex-column flex-md-row align-items-baseline gap-1 gap-md-2">
-                        <h6 className="mb-0 fw-semibold">{user.name}</h6>
-                        <small className="text-muted">#{user.idNumber}</small>
-                      </div>
-                      <div className="d-flex align-items-center text-muted">
-                        <FaPhone className="me-1 fs-6" />
-                        <small>{user.phone || 'No phone listed'}</small>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col xs="auto" className="d-none d-md-block">
-                    <div className="d-flex align-items-center text-primary">
-                      <FiMapPin className="me-1" />
-                      <small>{user.location}</small>
-                    </div>
-                  </Col>
-                  <Col xs="auto">
-                    <Badge pill bg="success" className="px-2">
-                      {policies.filter(p => p.userId === user.id).length}
-                    </Badge>
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Card.Body>
-      </Card>
-
-      <Offcanvas
-        show={showSidebar}
-        onHide={() => setShowSidebar(false)}
-        placement="end"
-        className="user-details-sidebar"
-        style={{ width: '100vw', maxWidth: '600px' }}
-      >
-        <div className="d-flex flex-column h-100">
-          <Offcanvas.Header className="bg-dark text-light py-3">
-            <div className="w-100">
-              <div className="d-flex justify-content-between align-items-start mb-2">
-                <div className="d-flex align-items-center">
-                  <div className="avatar-lg bg-white me-2">
-                    <FiUser className="text-primary" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="h5 mb-0 text-light">{selectedUser?.name}</h3>
-                    <small className="opacity-55">{selectedUser?.role}</small>
-                  </div>
+          <Card.Header className="bg-dark text-white py-2 py-md-3">
+            <Row className="align-items-center">
+              <Col xs={8} md={6}>
+                <h3 className="h5 h4-md mb-0">
+                  <FiUser className="me-2 text-light" />
+                  <span className="text-light">Registered Users</span>
+                </h3>
+              </Col>
+              <Col xs={4} md={6} className="text-end">
+                <div className="d-flex flex-column flex-md-row gap-2 justify-content-end">
+                  <Badge pill bg="light" text="dark" className="me-md-2">
+                    {users.length} Total
+                  </Badge>
+                  <Badge pill bg="light" text="dark">
+                    {usersWithLocation.length} Filtered
+                  </Badge>
                 </div>
-                <Button 
-                  variant="link" 
-                  onClick={() => setShowSidebar(false)}
-                  className="p-0 text-white"
+              </Col>
+            </Row>
+          </Card.Header>
+          <Card.Body className="p-2 p-md-3">
+            {renderUserControls()}
+            <ListGroup variant="flush">
+              {usersWithLocation.map(user => (
+                <ListGroup.Item 
+                  key={user.id}
+                  className="py-3 user-item"
+                  action
+                  onClick={() => handleUserSelect(user)}
                 >
-                  <FiX size={20} />
-                </Button>
+                  <Row className="align-items-center g-2">
+                    <Col xs="auto">
+                      <div className="avatar-circle bg-primary">
+                        <FiUser className="text-white" size={18} />
+                      </div>
+                    </Col>
+                    <Col>
+                      <div className="d-flex flex-column">
+                        <div className="d-flex flex-column flex-md-row align-items-baseline gap-1 gap-md-2">
+                          <h6 className="mb-0 fw-semibold">{user.name}</h6>
+                          <small className="text-muted">#{user.idNumber}</small>
+                        </div>
+                        <div className="d-flex align-items-center text-muted">
+                          <FaPhone className="me-1 fs-6" />
+                          <small>{user.phone || 'No phone listed'}</small>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col xs="auto" className="d-none d-md-block">
+                      <div className="d-flex align-items-center text-primary">
+                        <FiMapPin className="me-1" />
+                        <small>{user.location}</small>
+                      </div>
+                    </Col>
+                    <Col xs="auto">
+                      <Badge pill bg="success" className="px-2">
+                        {policies.filter(p => p.userId === user.id).length}
+                      </Badge>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card.Body>
+        </Card>
+  
+        <Offcanvas
+          show={showSidebar}
+          onHide={() => setShowSidebar(false)}
+          placement="end"
+          className="user-details-sidebar"
+          style={{ width: '90%', maxWidth: '600px' }}
+        >
+          <div className="d-flex flex-column h-100">
+            <Offcanvas.Header className="bg-dark text-light py-3 border-bottom border-secondary">
+              <div className="w-100">
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <div className="d-flex align-items-center">
+                    <div className="avatar-lg bg-white me-2 p-3 rounded-circle">
+                      <FiUser className="text-primary" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="h5 mb-0 text-light">{selectedUser?.name}</h3>
+                      <small className="opacity-75">{selectedUser?.role}</small>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="link" 
+                    onClick={() => setShowSidebar(false)}
+                    className="p-0 text-white opacity-75 hover-opacity-100"
+                  >
+                    <FiX size={24} />
+                  </Button>
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                  <Badge bg="light" text="dark" className="d-flex align-items-center py-2 px-3">
+                    <FiBriefcase className="me-2" />
+                    <small>{selectedUser?.companyName|| 'N/A'}</small>
+                  </Badge>
+                  <Badge bg="light" text="dark" className="d-flex align-items-center py-2 px-3">
+                    <FiMapPin className="me-2" />
+                    <small>{selectedUser?.city}, {selectedUser?.state}</small>
+                  </Badge>
+                </div>
               </div>
-              <div className="d-flex flex-wrap gap-1">
-                <Badge bg="light" text="dark" className="d-flex align-items-center py-1">
-                  <FiBriefcase className="me-1" />
-                  <small>{selectedUser?.companyName|| 'N/A'}</small>
-                </Badge>
-                <Badge bg="light" text="dark" className="d-flex align-items-center py-1">
-                  <FiMapPin className="me-1" />
-                  <small>{selectedUser?.city}, {selectedUser?.state}</small>
-                </Badge>
-              </div>
-            </div>
-          </Offcanvas.Header>
+            </Offcanvas.Header>
 
           <Offcanvas.Body className="p-3 h-100 overflow-auto">
             {/* Personal Information */}
             <section className="mb-4">
-              <h5 className="text-dark mb-3 fw-semibold">
-                <FiFileText className="me-2" />
+              <h5 className="text-dark mb-3 fw-semibold d-flex align-items-center">
+                <FiFileText className="me-2 text-primary" size={20} />
                 Personal Info
               </h5>
-              <Row className="g-2">
+              <Row className="g-3">
                 <Col xs={12} md={6}>
                   <InfoCard 
-                    icon={<FiCalendar />}
+                    icon={<FiCalendar className="text-success" size={18} />}
                     title="Member Since"
                     value={selectedUser?.createdAt && 
                       new Date(selectedUser.createdAt).toLocaleDateString()}
@@ -384,8 +384,8 @@ const PolicyList = () => {
                 </Col>
                 <Col xs={12} md={6}>
                   <InfoCard 
-                    icon={<FiShield className="text-success" />} 
-                    title="Status" 
+                    icon={<FiUserCheck className="text-info" size={18} />}
+                    title="Verification Status"
                     value={<span className="text-success">Verified</span>}
                   />
                 </Col>
@@ -502,13 +502,14 @@ const PolicyList = () => {
         }
         
         .avatar-lg {
-          width: 60px;
-          height: 60px;
-          border-radius: 12px;
+          width: 70px;
+          height: 70px;
+          border-radius: 15px;
           display: flex;
           align-items: center;
           justify-content: center;
           background-color: #fff;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .user-item:hover {
@@ -523,20 +524,17 @@ const PolicyList = () => {
           top: 0;
           bottom: 0;
           width: 4px;
+          border-radius: 2px;
         }
         
-        .alphabet-filter {
-          min-width: 36px;
-          padding: 0.25rem 0.5rem;
-        }
-        
-        .search-input {
-          border-radius: 8px;
-        }
-
         @media (max-width: 768px) {
           .container-fluid {
-            padding: 1rem;
+            padding: 1rem !important;
+          }
+          
+          .user-details-sidebar {
+            width: 90% !important;
+            max-width: 90% !important;
           }
           
           .stat-card {
@@ -546,6 +544,25 @@ const PolicyList = () => {
           .user-item {
             padding: 1rem;
           }
+          
+          .avatar-lg {
+            width: 50px;
+            height: 50px;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .user-details-sidebar {
+            width: 600px !important;
+          }
+        }
+        
+        .info-card {
+          transition: transform 0.2s ease;
+        }
+        
+        .info-card:hover {
+          transform: translateY(-2px);
         }
       `}</style>
     </div>

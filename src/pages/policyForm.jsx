@@ -17,10 +17,10 @@ const CarFormFields = memo(({ formData, setFormData }) => {
   };
 
   return (
-    <Card className="mb-4 shadow-sm">
+    <Card className="mb-4 shadow-sm   ">
       <Card.Header className="bg-primary text-white d-flex align-items-center">
         <FaCar className="me-2" />
-        <span>Car Insurance Details</span>
+        <span  >Car Insurance Details</span>
       </Card.Header>
       <Card.Body>
         <Row className="mb-3">
@@ -937,9 +937,9 @@ const PolicyForm = ({ initialPolicyType = 'CAR', onSuccess, onHide }) => {
   };
 
   return (
-    <Container className="py-3">
+    <Container className="py-3 ">
       <Card className="shadow-lg">
-        <Card.Header className="bg-dark text-white">
+        <Card.Header className="bg-dark text-white  ">
           <h3 className="mb-0 text-white">New Insurance Policy</h3>
         </Card.Header>
         <Card.Body>
