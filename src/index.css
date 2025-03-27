@@ -523,6 +523,10 @@ body {
   .modal-dialog {
     margin: 0.5rem;
   }
+
+  .exel{
+    margin-bottom: 12px;
+  }
   
   .modal-content {
     border-radius: 8px;

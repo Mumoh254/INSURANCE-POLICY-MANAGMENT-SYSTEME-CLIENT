@@ -40,25 +40,40 @@ const GlobalNotifications = () => {
       if (!notification?.id) return;
 
       try {
-         Swal.fire({
-               toast: true,
-               position: "top-end",
-               icon: "success",
-               title: "NEW NOTIFICATION ALERT!",
-               html: `
-                 <div style="font-size: 14px;">
-                   <p>${notification.message}</p>
-                   <p><strong>Policy:</strong> ${notification.policy.policyName}</p>
-                   <p><strong>User:</strong> ${notification.user.name}</p>
-                 </div>
-               `,
-               showConfirmButton: true,
-               timer: 9000,
-               timerProgressBar: true,
-             }).then(() => {
-               console.log("Swal popup closed");
-             });
-             
+        // Create a new Audio instance from the public folder
+        const audio = new Audio("/notifiy.mp3");
+        audio.currentTime = 0;
+        audio.play().catch((error) => {
+          console.error("Audio playback failed:", error);
+          Swal.fire({
+            icon: "info",
+            title: "Sound blocked",
+            text: "Please interact with the page to enable notification sounds",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        });
+
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "NEW NOTIFICATION ALERT!",
+          html: `
+            <div style="font-size: 14px;">
+              <p>${notification.message}</p>
+              <p><strong>Policy:</strong> ${notification.policy.policyName}</p>
+              <p><strong>User:</strong> ${notification.user.name}</p>
+            </div>
+          `,
+          showConfirmButton: true,
+          timer: 9000,
+          timerProgressBar: true,
+        }).then(() => {
+          console.log("Swal popup closed");
+        });
       } catch (error) {
         console.error("Swal error:", error);
       }

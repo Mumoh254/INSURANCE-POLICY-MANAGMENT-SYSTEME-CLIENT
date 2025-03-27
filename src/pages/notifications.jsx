@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Badge, Button, Container, Row, Col, Alert, Modal, Spinner } from "react-bootstrap";
-import { io } from "socket.io-client";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -8,7 +7,6 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
 const API_BASE_URL = "https://insurance-v1-api.onrender.com";
-const SOCKET_URL = "https://insurance-v1-api.onrender.com";
 
 const notificationStyles = {
   EXPIRED: { bg: "#ffeef0", color: "#cf222e" },
@@ -30,25 +28,12 @@ const Notifications = () => {
     soundEnabled: true,
   });
 
-  const audioRef = useRef(null);
   const socketRef = useRef(null);
   const stateRef = useRef(state);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
-
-  useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3");
-    audioRef.current.preload = "auto";
-    audioRef.current.volume = 1.0;
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -69,71 +54,9 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-    socketRef.current = io(SOCKET_URL, {
-      reconnectionAttempts: 5,
-      withCredentials: true,
-    });
-
-    socketRef.current.on("connect", () => {
-      setState((prev) => ({ ...prev, socketConnected: true }));
-    });
-
-    socketRef.current.on("disconnect", () => {
-      setState((prev) => ({ ...prev, socketConnected: false }));
-    });
-
-    const handleNewNotification = (notification) => {
-      if (!notification?.id) return;
-
-      if (stateRef.current.soundEnabled && audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch((error) => {
-          console.error("Audio playback failed:", error);
-          Swal.fire({
-            icon: "info",
-            title: "Sound blocked",
-            text: "Please interact with the page to enable notification sounds",
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-          });
-        });
-      }
-
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        icon: "success",
-        title: "NEW NOTIFICATION ALERT!",
-        html: `<small>${notification.message}</small>`,
-        showConfirmButton: false,
-        timer: 7000,
-        timerProgressBar: true,
-      });
-
-      setState((prev) => ({
-        ...prev,
-        notifications: [
-          {
-            ...notification,
-            creator: notification.user || { name: "System", email: "N/A" },
-            policy: notification.policy || { policyNumber: "N/A" },
-          },
-          ...prev.notifications,
-        ],
-        unreadCount: prev.unreadCount + (notification.isRead ? 0 : 1),
-      }));
-    };
-
-    socketRef.current.on("new_notification", handleNewNotification);
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off("new_notification", handleNewNotification);
-        socketRef.current.disconnect();
-      }
-    };
+    // (If you want to use a separate socket connection for local listing, you can keep this; 
+    // otherwise, GlobalNotifications already handles popups and sound.)
+    socketRef.current = null;
   }, []);
 
   const handleDelete = async (notificationId) => {
@@ -170,16 +93,18 @@ const Notifications = () => {
     }
   };
 
-  const NotificationItem = ({ notification, index }) => {
+  const NotificationItem = ({ notification }) => {
     const styleConfig = notificationStyles[notification.type] || notificationStyles.NEW;
     return (
       <div
         className="mb-3"
-        onClick={() => setState((prev) => ({
-          ...prev,
-          selectedNotification: notification,
-          showDetailModal: true,
-        }))}
+        onClick={() =>
+          setState((prev) => ({
+            ...prev,
+            selectedNotification: notification,
+            showDetailModal: true,
+          }))
+        }
       >
         <div
           className="rounded p-2 p-md-3 position-relative shadow-sm"
@@ -271,13 +196,9 @@ const Notifications = () => {
               <Spinner animation="border" variant="primary" size="sm" />
             </div>
           ) : (
-            <div className="bg-white rounded-3 shadow-sm p-2" style={{ 
-              maxHeight: "75vh", 
-              overflowY: "auto",
-              scrollbarWidth: "thin"
-            }}>
-              {state.notifications.map((notification, index) => (
-                <NotificationItem key={notification.id} notification={notification} index={index} />
+            <div className="bg-white rounded-3 shadow-sm p-2" style={{ maxHeight: "75vh", overflowY: "auto", scrollbarWidth: "thin" }}>
+              {state.notifications.map(notification => (
+                <NotificationItem key={notification.id} notification={notification} />
               ))}
               {state.notifications.length === 0 && (
                 <div className="text-center text-muted py-3" style={{ fontSize: "0.9rem" }}>
@@ -300,13 +221,8 @@ const Notifications = () => {
         <Modal.Body className="p-3">
           {state.selectedNotification && (
             <>
-              <p className="mb-2">
-                <strong>Type:</strong> {state.selectedNotification.type}
-              </p>
-              <p className="mb-2">
-                <strong>Received:</strong>{" "}
-                {new Date(state.selectedNotification.createdAt).toLocaleString()}
-              </p>
+              <p className="mb-2"><strong>Type:</strong> {state.selectedNotification.type}</p>
+              <p className="mb-2"><strong>Received:</strong> {new Date(state.selectedNotification.createdAt).toLocaleString()}</p>
               <p className="mb-0" style={{ fontSize: "1rem" }}>
                 <strong>Message:</strong> {state.selectedNotification.message}
               </p>
@@ -314,11 +230,7 @@ const Notifications = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="p-2">
-          <Button 
-            variant="secondary" 
-            size="sm"
-            onClick={() => setState((prev) => ({ ...prev, showDetailModal: false }))}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setState((prev) => ({ ...prev, showDetailModal: false }))}>
             Close
           </Button>
         </Modal.Footer>

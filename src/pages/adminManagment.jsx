@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Table, Button, Alert, Modal, Form, Spinner, Badge, InputGroup, Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Badge, Spinner, Alert, Modal, Form, InputGroup, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import { format, formatDistanceToNow } from 'date-fns';
-import { 
-  FiDollarSign, FiPackage, FiAlertCircle, FiCalendar, FiBriefcase, FiCheckCircle, FiClock, FiTrendingUp, FiUser, FiX, FiMapPin 
-} from 'react-icons/fi';
-import { FaTrash, FaUser, FaHandshake } from 'react-icons/fa';
+import { FiDollarSign, FiPackage, FiAlertCircle, FiCalendar, FiBriefcase, FiCheckCircle, FiClock, FiUser, FiX, FiMapPin } from 'react-icons/fi';
+import { FaTrash, FaUser } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 import * as jwt_decode from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = 'https://insurance-v1-api.onrender.com/api/insurance';
 
@@ -19,9 +18,8 @@ const AdminManagement = () => {
     showCreateModal: false,
     submitting: false,
     totalAdmins: 0,
-    activeSessions: 0
+    activeSessions: 0,
   });
-
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -32,6 +30,16 @@ const AdminManagement = () => {
     kraPin: '',
     occupation: ''
   });
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 576);
+
+  const navigate = useNavigate();
+
+  // Update isMobile state on window resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 576);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch admins on mount
   useEffect(() => {
@@ -43,13 +51,14 @@ const AdminManagement = () => {
       const response = await fetch(`${API_URL}/users`);
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
- 
+
+      // Filter only admin users
       const admins = data.users.filter(user => user.role?.toLowerCase() === 'admin');
       console.log("Filtered admins:", admins);
 
       const active = admins.filter(a => a.isActive === true).length;
       console.log("Active admins count:", active);
-      
+
       setState(prev => ({
         ...prev,
         admins: admins.map(admin => ({
@@ -71,7 +80,6 @@ const AdminManagement = () => {
     e.preventDefault();
     try {
       setState(prev => ({ ...prev, submitting: true }));
-      
       const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,17 +108,16 @@ const AdminManagement = () => {
         occupation: ''
       });
       
-    Swal.fire({
-           toast: true,
-           position: 'top-end',
-           icon: 'success',
-           title: 'SUCESS!',
-           html: `<small> Admin created successfully   ✅</small>`,
-           showConfirmButton: false,
-           timer: 4000,
-           timerProgressBar: true,
-         });
-
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'SUCCESS!',
+        html: `<small>Admin created successfully ✅</small>`,
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       Swal.fire('Error', error.message, 'error');
       setState(prev => ({ ...prev, submitting: false }));
@@ -201,30 +208,103 @@ const AdminManagement = () => {
     }
   };
 
-  const [showPassword, setShowPassword] = useState(false);
+  // Render table headers based on screen width
+  const renderTableHeader = () => {
+    if (isMobile) {
+      return (
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      );
+    }
+    return (
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Last Login</th>
+        <th>Last Activity</th>
+        <th>Actions</th>
+      </tr>
+    );
+  };
 
-  const PasswordInput = ({ value, onChange }) => (
-    <InputGroup>
-      <Form.Control
-        type={showPassword ? 'text' : 'password'}
-        value={value}
-        onChange={onChange}
-        required
-        minLength="8"
-      />
-      <Button 
-        variant="outline-secondary" 
-        onClick={() => setShowPassword(prev => !prev)}
-        onMouseDown={e => e.preventDefault()} 
-        aria-label="Toggle password visibility"
-      >
-        {showPassword ? '🙈' : '👁️'}
-      </Button>
-    </InputGroup>
-  );
+  // Render table rows based on screen width
+  const renderTableRow = (admin) => {
+    if (isMobile) {
+      return (
+        <tr key={admin.id}>
+          <td>{admin.name}</td>
+          <td>{admin.email}</td>
+          <td>
+            <Badge bg="info" pill>{admin.role}</Badge>
+            <div className="d-flex gap-2 mt-1">
+              <Button variant="warning" size="sm" onClick={() => handleResetPassword(admin.id)}>
+                Reset
+              </Button>
+              <Button variant="danger" size="sm" onClick={() => handleDeleteAdmin(admin.id)}>
+                Remove
+              </Button>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+    return (
+      <tr key={admin.id}>
+        <td>{admin.name}</td>
+        <td>{admin.email}</td>
+        <td>
+          <Badge bg="info" pill>{admin.role}</Badge>
+        </td>
+        <td>{admin.lastLogin ? format(admin.lastLogin, 'dd/MM/yyyy HH:mm') : 'Never logged in'}</td>
+        <td>{admin.lastActivity ? formatDistanceToNow(admin.lastActivity, { addSuffix: true }) : 'No recent activity'}</td>
+        <td>
+          <Button variant="warning" size="sm" onClick={() => handleResetPassword(admin.id)} className="me-2">
+            Reset Password
+          </Button>
+          <Button variant="danger" size="sm" onClick={() => handleDeleteAdmin(admin.id)}>
+            Remove
+          </Button>
+        </td>
+      </tr>
+    );
+  };
 
-  return (
-    <div className="p-4">
+  // Render the header section with admin management info for mobile
+  const renderHeaderSection = () => {
+    if (isMobile) {
+      return (
+        <div className="mb-4 text-center">
+          <h3>Admin Management</h3>
+          <Row className="justify-content-center mt-3">
+            <Col xs={5}>
+              <Badge bg="secondary" className="w-100 py-2">
+                Total Admins: {state.totalAdmins}
+              </Badge>
+            </Col>
+            <Col xs={5}>
+              <Badge bg="success" className="w-100 py-2">
+                Active Sessions: {state.activeSessions}
+              </Badge>
+            </Col>
+          </Row>
+          <div className="mt-3">
+            <Button 
+              variant="primary" 
+              size="sm" 
+              onClick={() => navigate('/create-admin')}
+              className="w-100"
+            >
+              Create Admin
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return (
       <div className="d-flex justify-content-between align-items-center bg-danger-subtle px-4 py-3 mb-4 rounded shadow-sm">
         <div>
           <h2>Admin Management</h2>
@@ -241,7 +321,12 @@ const AdminManagement = () => {
           Create New Admin
         </Button>
       </div>
+    );
+  };
 
+  return (
+    <div className="p-4">
+      {renderHeaderSection()}
       {state.loading ? (
         <div className="text-center">
           <Spinner animation="border" variant="primary" />
@@ -252,39 +337,10 @@ const AdminManagement = () => {
       ) : (
         <Table striped bordered hover responsive className="bg-white shadow-sm">
           <thead className="bg-light">
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Last Login</th>
-              <th>Last Activity</th>
-              <th>Actions</th>
-            </tr>
+            {renderTableHeader()}
           </thead>
           <tbody>
-            {state.admins.map(admin => (
-              <tr key={admin.id}>
-                <td>{admin.name}</td>
-                <td>{admin.email}</td>
-                <td>
-                  <Badge bg="info" pill>{admin.role}</Badge>
-                </td>
-                <td>
-                  {admin.lastLogin ? format(admin.lastLogin, 'dd/MM/yyyy HH:mm') : 'Never logged in'}
-                </td>
-                <td>
-                  {admin.lastActivity ? formatDistanceToNow(admin.lastActivity, { addSuffix: true }) : 'No recent activity'}
-                </td>
-                <td>
-                  <Button variant="warning" size="sm" onClick={() => handleResetPassword(admin.id)} className="me-2">
-                    Reset Password
-                  </Button>
-                  <Button variant="danger" size="sm" onClick={() => handleDeleteAdmin(admin.id)}>
-                    Remove
-                  </Button>
-                </td>
-              </tr>
-            ))}
+            {state.admins.map(admin => renderTableRow(admin))}
           </tbody>
         </Table>
       )}
@@ -381,8 +437,42 @@ const AdminManagement = () => {
           </Modal.Footer>
         </Form>
       </Modal>
+
+      <style jsx>{`
+        @media (max-width: 576px) {
+          /* Mobile Table: show only Name, Email, Role */
+          table thead tr th:nth-child(n+4) {
+            display: none;
+          }
+          table tbody tr td:nth-child(n+4) {
+            display: none;
+          }
+          /* Adjust font sizes for mobile */
+          h3, h2 {
+            font-size: 1.2rem;
+          }
+          table {
+            font-size: 0.85rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };
+
+const PasswordInput = ({ value, onChange }) => (
+  <InputGroup>
+    <Form.Control
+      type="password"
+      value={value}
+      onChange={onChange}
+      required
+      minLength="8"
+    />
+    <Button variant="outline-secondary" onClick={() => {}} aria-label="Toggle password visibility">
+      👁️
+    </Button>
+  </InputGroup>
+);
 
 export default AdminManagement;

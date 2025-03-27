@@ -18,7 +18,8 @@ import {
   faShield,
   faCircleCheck,
   faUserGraduate,
-  faGlobe
+  faGlobe,
+
 } from '@fortawesome/free-solid-svg-icons';
 import { Alert } from 'react-bootstrap';
 import Policies from '../policies';
@@ -137,6 +138,7 @@ const Footer = () => {
               { to: "/analytics", icon: faChartLine },
               { to: "/calender", icon: faCalendarAlt },
               { to: "/notifications", icon: faBell },
+              { to: "/create-admin", icon: faUser },
             ].map((link) => (
               <NavLink 
                 key={link.to}
@@ -312,75 +314,91 @@ const ProtectedLayout = () => {
       </div>
 
       {/* Mobile Menu Offcanvas */}
-      <Offcanvas
-        show={showMobileMenu}
-        onHide={() => setShowMobileMenu(false)}
-        placement="end"
-        style={{
-          background: theme === 'light' ? "#f4f4f4" : "#111111",
-          color: theme === 'light' ? "black" : "white",
-          width: '280px'
+  {/* Mobile Menu Offcanvas */}
+<Offcanvas
+  show={showMobileMenu}
+  onHide={() => setShowMobileMenu(false)}
+  placement="end"
+  style={{
+    background: theme === 'light' ? "#f4f4f4" : "#111111",
+    color: theme === 'light' ? "black" : "white",
+    width: '280px'
+  }}
+>
+  <Offcanvas.Header closeButton closeVariant={theme === 'light' ? "dark" : "white"} className="pb-2">
+    <Offcanvas.Title className="fs-6">Navigation Menu</Offcanvas.Title>
+  </Offcanvas.Header>
+  <Offcanvas.Body className="pt-2">
+    <Nav className="flex-column gap-2">
+      {[
+        { to: "/policies", text: "Policies", icon: faUserShield },
+        { to: "/sheets", text: "Sheets", icon: faFileContract },
+        { to: "/policy-holder", text: "Policy-Holder", icon: faChartLine },
+        { to: "/analytics", text: "Analytics", icon: faCalendarAlt },
+        { to: "/schedule", text: "Schedule", icon: faBell },
+        { to: "/notifications", text: "Notifications", icon: faBell },
+      ].map((link) => (
+        <Nav.Link
+          key={link.to}
+          as={NavLink}
+          to={link.to}
+          onClick={() => setShowMobileMenu(false)}
+          className="py-2 px-3 d-flex align-items-center gap-3"
+          style={{ fontSize: '0.9rem' }}
+        >
+          <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
+          {link.text}
+        </Nav.Link>
+      ))}
+    </Nav>
+
+    {/* Add dedicated Admin Management Button */}
+    <div className="mt-3">
+      <Button
+        variant="outline-primary"
+        className="w-100"
+        onClick={() => {
+          setShowMobileMenu(false);
+          navigate('/create-admin');
         }}
       >
-        <Offcanvas.Header closeButton closeVariant={theme === 'light' ? "dark" : "white"} className="pb-2">
-          <Offcanvas.Title className="fs-6">Navigation Menu</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body className="pt-2">
-          <Nav className="flex-column gap-2">
-            {[
-              { to: "/policies", text: "Policies", icon: faUserShield },
-              { to: "/sheets", text: "Sheets", icon: faFileContract },
-              { to: "/policy-holder", text: "Policy-Holder", icon: faChartLine },
-              { to: "/analytics", text: "Analytics", icon: faCalendarAlt },
-              { to: "/schedule", text: "Schedule", icon: faBell },
-              { to: "/notifications", text: "Notifications", icon: faBell },
-            ].map((link) => (
-              <Nav.Link
-                key={link.to}
-                as={NavLink}
-                to={link.to}
-                onClick={() => setShowMobileMenu(false)}
-                className="py-2 px-3 d-flex align-items-center gap-3"
-                style={{ fontSize: '0.9rem' }}
-              >
-                <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
-                {link.text}
-              </Nav.Link>
-            ))}
-          </Nav>
+        Admin Management
+      </Button>
+    </div>
 
-          {/* Realtime Information Section */}
-          <div className="mt-3 px-3 pt-2 border-top border-secondary">
-            <RealtimeInfo />
-          </div>
+    {/* Realtime Information Section */}
+    <div className="mt-3 px-3 pt-2 border-top border-secondary">
+      <RealtimeInfo />
+    </div>
 
-          {/* Theme Toggle Section */}
-          <div className="mt-3 px-3">
-            <Button
-              variant="outline-secondary"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="w-100"
-            >
-              {theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-            </Button>
-          </div>
+    {/* Theme Toggle Section */}
+    <div className="mt-3 px-3">
+      <Button
+        variant="outline-secondary"
+        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        className="w-100"
+      >
+        {theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+      </Button>
+    </div>
 
-          {/* Logged In As Section */}
-          <div className="mt-4 pt-2 border-top border-secondary">
-            <div className="d-flex align-items-center gap-2 text-center pt-2">
-              <span className="text-muted">Logged in as:</span>
-              <Badge pill className="fs-8 px-3 py-2 bg-red" style={{ 
-                backgroundColor: 'red', 
-                border: '1px solid red',
-                boxShadow: '0 2px 4px rgba(255, 0, 25)'
-              }}>
-                <FontAwesomeIcon icon={faUserShield} className="me-2" />
-                {userName}
-              </Badge>
-            </div>
-          </div>
-        </Offcanvas.Body>
-      </Offcanvas>
+    {/* Logged In As Section */}
+    <div className="mt-4 pt-2 border-top border-secondary">
+      <div className="d-flex align-items-center gap-2 text-center pt-2">
+        <span className="text-muted">Logged in as:</span>
+        <Badge pill className="fs-8 px-3 py-2 bg-red" style={{ 
+          backgroundColor: 'red', 
+          border: '1px solid red',
+          boxShadow: '0 2px 4px rgba(255, 0, 25)'
+        }}>
+          <FontAwesomeIcon icon={faUserShield} className="me-2" />
+          {userName}
+        </Badge>
+      </div>
+    </div>
+  </Offcanvas.Body>
+</Offcanvas>
+
 
       {/* Main Content Area */}
       <main className="flex-grow-1 py-4 bg-light" style={{ marginTop: '70px' }}>
