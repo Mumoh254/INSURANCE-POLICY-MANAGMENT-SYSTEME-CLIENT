@@ -103,7 +103,7 @@ const Footer = () => {
   if (token) {
     try {
       const decoded = jwt_decode.jwtDecode(token);
-      userName = decoded.name || decoded.email || 'Live';
+      userName = decoded.name || decoded.name || 'Live';
     } catch (error) {
       console.error('Token decode error:', error);
     }
