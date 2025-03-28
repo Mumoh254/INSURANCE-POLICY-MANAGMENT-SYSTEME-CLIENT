@@ -14,6 +14,7 @@ self.addEventListener("install", (event) => {
     console.log("[SW] Push event received");
     let payload = {};
     try {
+      // Safely parse the JSON payload
       payload = event.data ? event.data.json() : {};
       console.log("[SW] Payload:", payload);
     } catch (error) {
@@ -42,13 +43,11 @@ self.addEventListener("install", (event) => {
     const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
     event.waitUntil(
       clients.matchAll({ type: "window" }).then((windowClients) => {
-        // If a window matching the URL is already open, focus it.
         for (let client of windowClients) {
           if (client.url === urlToOpen && "focus" in client) {
             return client.focus();
           }
         }
-        // Otherwise, open a new window.
         if (clients.openWindow) {
           return clients.openWindow(urlToOpen);
         }

@@ -1,13 +1,12 @@
 // src/components/GlobalNotifications.jsx
-
 import React, { useEffect } from "react";
 import { io } from "socket.io-client";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
-const SOCKET_URL = "https://weltcoverv1-insurancesystem.onrender.com"; // Update to your API URL
-const VAPID_PUBLIC_KEY = "BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90";   // Update to your VAPID public key
-const NOTIFICATION_SOUND = "/notifiy.mp3";
+const SOCKET_URL = "https://weltcoverv1-insurancesystem.onrender.com"; // Replace with your API URL
+const VAPID_PUBLIC_KEY = "BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90"; // Replace with your VAPID public key
+const NOTIFICATION_SOUND = "/notifiy.mp3"; // Ensure this file exists at the given path
 
 const urlBase64ToUint8Array = (base64String) => {
   const padding = "=".repeat((4 - base64String.length % 4) % 4);
@@ -61,7 +60,15 @@ const GlobalNotifications = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(subscription)
         });
-        console.log("[SW] Subscription response:", response.status, await response.json());
+
+        // Ensure we get valid JSON back
+        let jsonResponse = {};
+        try {
+          jsonResponse = await response.json();
+        } catch (err) {
+          console.error("Failed to parse JSON response:", err);
+        }
+        console.log("[SW] Subscription response:", response.status, jsonResponse);
       } catch (error) {
         console.error("[SW] Registration failed:", error);
         Swal.fire({
