@@ -9,7 +9,6 @@ self.addEventListener('push', (event) => {
       })
     );
   });
-  
   self.addEventListener("push", (event) => {
     let data = {};
     try {
@@ -18,15 +17,14 @@ self.addEventListener('push', (event) => {
       console.error("Error parsing push data:", e);
     }
     
-    // Ensure you have a title, body, and icon defined.
     const title = data.title || "New Notification";
     const options = {
       body: data.body || "You have a new notification.",
-      icon: data.icon || "/default-icon.png",  // Ensure this file exists and is accessible over HTTPS.
-      badge: data.badge || "/default-badge.png", // Optional: A small icon for the badge.
+      icon: data.icon || "/chrome.png",   // Make sure this file exists and is accessible.
+      badge: data.badge || "/chrome.png",  // Optional: a small icon for the badge.
       data: { redirectUrl: data.redirectUrl || "/" }
     };
-  
+    
     event.waitUntil(self.registration.showNotification(title, options));
   });
   
