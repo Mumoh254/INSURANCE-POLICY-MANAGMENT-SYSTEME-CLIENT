@@ -1,17 +1,3 @@
-self.addEventListener('push', (event) => {
-    const payload = event.data?.json() || { title: 'New Notification' };
-    
-    event.waitUntil(
-      self.registration.showNotification(payload.title, {
-        body: payload.body,
-        icon: '/chrome.png',
-        data: { url: payload.url }
-      })
-    );
-  });
-
-  // sw.js
-
 self.addEventListener("push", (event) => {
     let data = {};
     try {
@@ -23,9 +9,9 @@ self.addEventListener("push", (event) => {
     const title = data.title || "New Notification";
     const options = {
       body: data.body || "You have a new notification.",
-      icon: data.icon || "/chrome.png",      // Ensure this path is correct and accessible
-      badge: data.badge || "/badge.png",       // Optional: use a simplified badge icon
-      vibrate: data.vibrate || [100, 50, 100],   // Vibration pattern (supported on Android)
+      icon: data.icon || "/chrome.png",      // Ensure this file exists and is correctly sized (at least 192x192 recommended)
+      badge: data.badge || "/badge.png",       // Use a simple monochrome badge image if possible
+      vibrate: data.vibrate || [100, 50, 100],   // Vibration pattern for Android devices
       data: {
         redirectUrl: data.redirectUrl || "/"
       },
@@ -33,42 +19,24 @@ self.addEventListener("push", (event) => {
         {
           action: "view",
           title: "View",
-          icon: "/chrome.png"               // Optional: add an action icon if available
+          icon: data.actionIcon || "/chrome.png"  // Optional: provide a custom action icon
         },
         {
           action: "dismiss",
-          title: "Dismiss",
-        //   icon: "/dismiss-icon.png"            // Optional: add an action icon if available
+          title: "Dismiss"
         }
       ]
     };
     
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
+    console.log("Push event received with data:", data);
+    
+    event.waitUntil(self.registration.showNotification(title, options));
   });
   
   self.addEventListener("notificationclick", (event) => {
     event.notification.close();
     event.waitUntil(
-      clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
-        for (const client of clientList) {
-          if (client.url === event.notification.data.redirectUrl && "focus" in client) {
-            return client.focus();
-          }
-        }
-        if (clients.openWindow) {
-          return clients.openWindow(event.notification.data.redirectUrl);
-        }
-      })
-    );
-  });
-
-  
-  self.addEventListener("notificationclick", (event) => {
-    event.notification.close();
-    event.waitUntil(
-      clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
+      clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
         for (const client of clientList) {
           if (client.url === event.notification.data.redirectUrl && "focus" in client) {
             return client.focus();
