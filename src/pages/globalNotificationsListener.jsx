@@ -1,3 +1,4 @@
+// GlobalNotifications.jsx
 import React, { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Swal from 'sweetalert2';
@@ -18,26 +19,30 @@ const urlBase64ToUint8Array = (base64String) => {
 
 const GlobalNotifications = () => {
   useEffect(() => {
-    console.log('[Notifications] Initializing...');
+    console.groupCollapsed('[Notifications] Initialization');
     
     const registerServiceWorker = async () => {
-      console.log('[Notifications] Checking service worker support');
+      console.log('[SW] Checking support');
       if (!('serviceWorker' in navigator)) {
-        console.warn('[Notifications] Service workers not supported');
+        console.warn('[SW] Service Workers not supported');
         return;
       }
 
       try {
-        console.log('[Notifications] Registering service worker');
+        console.log('[SW] Registration started');
         const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/'
+          scope: '/',
+          updateViaCache: 'none'
         });
-        console.log('[Notifications] Service worker registered:', registration);
+
+        console.log('[SW] Registration successful:', registration);
+        console.log('[SW] Scope:', registration.scope);
+        console.log('[SW] Controller:', navigator.serviceWorker.controller);
 
         const handlePermission = async () => {
-          console.log('[Notifications] Requesting notification permission');
+          console.log('[Permission] Requesting...');
           const permission = await Notification.requestPermission();
-          console.log('[Notifications] Permission status:', permission);
+          console.log('[Permission] Status:', permission);
           
           if (permission !== 'granted') {
             Swal.fire({
@@ -47,19 +52,17 @@ const GlobalNotifications = () => {
               toast: true,
               position: 'top-end'
             });
-            return null;
           }
           return permission;
         };
 
         const permission = await handlePermission();
-        if (!permission) return;
 
-        console.log('[Notifications] Checking existing subscription');
+        console.log('[Subscription] Checking existing');
         let subscription = await registration.pushManager.getSubscription();
         
         if (!subscription) {
-          console.log('[Notifications] Creating new subscription');
+          console.log('[Subscription] Creating new');
           const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
           subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
@@ -67,16 +70,17 @@ const GlobalNotifications = () => {
           });
         }
 
-        console.log('[Notifications] Subscription details:', subscription);
-        await fetch(`${SOCKET_URL}/notifications/subscribe`, {
+        console.log('[Subscription] Details:', JSON.stringify(subscription, null, 2));
+        
+        const response = await fetch(`${SOCKET_URL}/notifications/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(subscription)
         });
-        console.log('[Notifications] Subscription sent to server');
+        console.log('[Subscription] Server response:', response.status, await response.json());
 
       } catch (error) {
-        console.error('[Notifications] Service Worker error:', error);
+        console.error('[SW] Registration failed:', error);
         Swal.fire({
           icon: 'error',
           title: 'Notification Error',
@@ -87,49 +91,60 @@ const GlobalNotifications = () => {
       }
     };
 
-    registerServiceWorker();
+    registerServiceWorker().finally(() => console.groupEnd());
 
-    // Socket.IO setup with enhanced logging
-    console.log('[Notifications] Connecting to Socket.IO');
+    // Socket.IO Connection with Debugging
+    console.log('[Socket] Initializing connection');
     const socket = io(SOCKET_URL, {
       reconnection: true,
       transports: ['websocket'],
-      query: { debug: true }
+      query: { debug: true },
+      auth: { token: 'client-notifications' }
     });
 
     socket.on('connect', () => {
-      console.log('[Socket] Connected:', socket.id);
+      console.log('[Socket] Connected with ID:', socket.id);
+      console.log('[Socket] Transport:', socket.io.engine.transport.name);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('[Socket] Connection error:', error.message);
     });
 
     socket.on('disconnect', (reason) => {
       console.log('[Socket] Disconnected:', reason);
     });
 
-    socket.on('connect_error', (error) => {
-      console.error('[Socket] Connection error:', error);
-    });
-
     socket.on('new_notification', (notification) => {
-      console.log('[Socket] Received notification:', notification);
+      console.groupCollapsed('[Socket] Notification Received');
+      console.log('Raw data:', notification);
       
-      if (Notification.permission === 'granted') {
-        console.log('[Notifications] Showing native notification');
-        new Audio(NOTIFICATION_SOUND).play().catch(console.error);
-      } else {
-        console.log('[Notifications] Falling back to Swal notification');
-        Swal.fire({
-          title: notification.message,
-          html: `Policy: ${notification.policy.policyName}<br>User: ${notification.user.name}`,
-          icon: 'info',
-          toast: true,
-          position: 'top-end',
-          timer: 5000
-        });
+      try {
+        if (Notification.permission === 'granted') {
+          console.log('[Notification] Attempting native display');
+          new Audio(NOTIFICATION_SOUND).play().catch(e => 
+            console.error('[Audio] Play failed:', e.message)
+          );
+        } else {
+          console.log('[Notification] Falling back to Swal');
+          Swal.fire({
+            title: notification.message,
+            html: `Policy: ${notification.policy.policyName}<br>User: ${notification.user.name}`,
+            icon: 'info',
+            toast: true,
+            position: 'top-end',
+            timer: 5000
+          });
+        }
+      } catch (error) {
+        console.error('[Notification] Handling error:', error);
       }
+      
+      console.groupEnd();
     });
 
     return () => {
-      console.log('[Notifications] Cleaning up');
+      console.log('[Socket] Disconnecting');
       socket.disconnect();
     };
   }, []);

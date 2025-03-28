@@ -5,22 +5,16 @@ self.addEventListener('install', (event) => {
   });
   
   self.addEventListener('activate', (event) => {
-    console.log('[SW] Activate event');
+    console.log('[SW] Activate event - Claiming clients');
     event.waitUntil(clients.claim());
   });
   
   self.addEventListener("push", async (event) => {
-    console.log('[SW] Push event received');
+    console.log('[SW] Push event received:', event);
     
     try {
       const payload = event.data?.json() || {};
-      console.log('[SW] Push payload:', payload);
-  
-      // Play notification sound
-      if (payload.sound) {
-        const audio = new Audio(payload.sound);
-        await audio.play().catch(e => console.error('[SW] Sound play failed:', e));
-      }
+      console.log('[SW] Decoded payload:', JSON.stringify(payload, null, 2));
   
       const title = payload.title || "New Notification";
       const options = {
@@ -32,8 +26,22 @@ self.addEventListener('install', (event) => {
         actions: payload.actions || []
       };
   
-      console.log('[SW] Showing notification with options:', options);
-      event.waitUntil(self.registration.showNotification(title, options));
+      // Play notification sound through service worker
+      if (payload.sound) {
+        console.log('[SW] Attempting to play sound:', payload.sound);
+        const audio = new Audio(payload.sound);
+        audio.volume = 0.5; // Some browsers require reduced volume for autoplay
+        await audio.play().catch(e => 
+          console.error('[SW] Sound play failed:', e.message)
+        );
+      }
+  
+      console.log('[SW] Showing notification with:', options);
+      event.waitUntil(
+        self.registration.showNotification(title, options)
+          .then(() => console.log('[SW] Notification displayed'))
+          .catch(e => console.error('[SW] Notification error:', e))
+      );
     } catch (error) {
       console.error('[SW] Push handling error:', error);
     }
@@ -43,7 +51,8 @@ self.addEventListener('install', (event) => {
     console.log('[SW] Notification click:', event.notification);
     event.notification.close();
     
-    const urlToOpen = event.notification.data.url;
+    const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
+    
     event.waitUntil(
       clients.matchAll({type: 'window'}).then(windowClients => {
         const client = windowClients.find(c => c.url === urlToOpen);
