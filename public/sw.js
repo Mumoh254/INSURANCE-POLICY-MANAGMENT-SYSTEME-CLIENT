@@ -1,15 +1,14 @@
 // public/sw.js
-
-
-
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open("static-cache").then((cache) => {
+        caches.open("static-cache-v1").then((cache) => {
             return cache.addAll([
-                "/public/index.html",
+                "/",
+                "/index.html",
                 "/styles/styles.css",
-                "/src/app.js",
-                "/src/db.js",
+                "/dist/app.js",
+                "/icons/icon-192x192.png",
+                "/icons/icon-512x512.png"
             ]);
         })
     );
@@ -18,19 +17,32 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+            // Return cached response or fetch from network
+            return response || fetch(event.request).then(fetchResponse => {
+                // Add network response to cache
+                return caches.open("dynamic-cache-v1").then(cache => {
+                    cache.put(event.request.url, fetchResponse.clone());
+                    return fetchResponse;
+                });
+            });
+        }).catch(() => {
+            // Fallback for failed requests
+            return caches.match("/offline.html");
         })
     );
 });
 
-
-
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js")
-        .then(() => console.log("Service Worker Registered"))
-        .catch(err => console.log("Service Worker Failed", err));
-}
-
+self.addEventListener("activate", (event) => {
+    // Clean up old caches
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.filter(name => name !== "static-cache-v1" && name !== "dynamic-cache-v1")
+                          .map(name => caches.delete(name))
+            );
+        })
+    );
+});
 
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
