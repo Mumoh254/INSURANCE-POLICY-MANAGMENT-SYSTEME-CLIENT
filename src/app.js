@@ -1,77 +1,72 @@
 // src/app.js
-import { savePolicy, getPolicies } from './db.js';
-
-// Service Worker Registration
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js")
-            .then(registration => {
-                console.log("SW registered:", registration);
-            })
-            .catch(error => {
-                console.log("SW registration failed:", error);
-            });
-    });
-}
-
-async function fetchPoliciesFromServer() {
+class OfflineUI {
+    constructor() {
+      this.offlineBanner = document.createElement('div');
+      this.offlineBanner.className = 'offline-banner';
+      this.offlineBanner.textContent = 'You are offline - using cached data';
+      document.body.prepend(this.offlineBanner);
+      
+      window.addEventListener('online', () => this.updateStatus());
+      window.addEventListener('offline', () => this.updateStatus());
+      this.updateStatus();
+    }
+  
+    updateStatus() {
+      this.offlineBanner.style.display = navigator.onLine ? 'none' : 'block';
+    }
+  }
+  
+  // Initialize early in your app
+  const offlineUI = new OfflineUI();
+  
+  async function fetchPoliciesFromServer() {
     try {
-        const response = await fetch("/api/policies");
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const policies = await response.json();
-        const savePromises = policies.map(policy => savePolicy(policy));
-        
-        await Promise.all(savePromises);
-        return policies;
+      if (!navigator.onLine) {
+        throw new Error('Offline - using cached data');
+      }
+  
+      const response = await fetch('/api/policies');
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const policies = await response.json();
+      await savePolicies(policies);
+      return policies;
     } catch (error) {
-        console.error("Fetch error:", error);
-        return getPolicies(); // Fallback to cached data
+      console.error(error.message);
+      return getPolicies(); // Fallback to cached data
     }
-}
-
-async function loadPolicies() {
+  }
+  
+  async function loadPageData() {
     try {
-        const policies = await fetchPoliciesFromServer();
-        renderPolicies(policies);
-        setupSync();
+      const policies = await fetchPoliciesFromServer();
+      renderPolicies(policies);
     } catch (error) {
-        console.error("Load error:", error);
-        renderError();
+      showErrorPage();
     }
-}
-
-function renderPolicies(policies) {
-    // Implementation depends on your UI framework
-    console.log("Rendering policies:", policies);
-}
-
-function setupSync() {
-    if ("sync" in navigator.serviceWorker) {
-        navigator.serviceWorker.ready.then(registration => {
-            registration.sync.register("sync-policies");
-        });
+  }
+  
+  function showErrorPage() {
+    if (!navigator.onLine) {
+      window.location.href = '/offline.html';
     }
-}
-
-// Initialize when DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-    loadPolicies();
-    setupNetworkListeners();
-});
-
-function setupNetworkListeners() {
-    window.addEventListener("online", () => {
-        loadPolicies();
-        showNetworkStatus("Connected");
-    });
-
-    window.addEventListener("offline", () => {
-        showNetworkStatus("Offline - using cached data");
-    });
-}
-
-function showNetworkStatus(message) {
-    // Update your UI with network status
-    console.log(message);
-}
+  }
+  
+  // Handle page navigation
+  document.addEventListener('click', (event) => {
+    if (event.target.tagName === 'A' && !navigator.onLine) {
+      event.preventDefault();
+      alert('You are offline - please stay on this page');
+    }
+  });
+  
+  // Initialize app
+  document.addEventListener('DOMContentLoaded', () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.error('SW registration failed:', err));
+    }
+  
+    loadPageData();
+  });

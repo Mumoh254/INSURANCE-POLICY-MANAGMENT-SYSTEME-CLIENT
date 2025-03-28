@@ -1,48 +1,46 @@
 // public/sw.js
-self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open("static-cache-v1").then((cache) => {
-            return cache.addAll([
-                "/",
-                "/index.html",
-                "/styles/styles.css",
-                "/dist/app.js",
-                "/chrome.png",
-                "/chrome.png"
-            ]);
-        })
-    );
+const CACHE_NAME = 'static-cache-v2';
+const OFFLINE_PAGE = '/offline.html';
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll([
+        '/',
+        OFFLINE_PAGE,
+        '/styles/styles.css',
+        '/scripts/app.js',
+        '/icons/offline.png'
+      ]))
+  );
 });
 
-self.addEventListener("fetch", (event) => {
+self.addEventListener('fetch', (event) => {
+  // Handle navigation requests
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            // Return cached response or fetch from network
-            return response || fetch(event.request).then(fetchResponse => {
-                // Add network response to cache
-                return caches.open("dynamic-cache-v1").then(cache => {
-                    cache.put(event.request.url, fetchResponse.clone());
-                    return fetchResponse;
-                });
-            });
-        }).catch(() => {
-            // Fallback for failed requests
-            return caches.match("/offline.html");
-        })
+      fetch(event.request)
+        .catch(() => caches.match(OFFLINE_PAGE))
     );
+  } else {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => response || fetch(event.request))
+    );
+  }
 });
 
-self.addEventListener("activate", (event) => {
-    // Clean up old caches
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.filter(name => name !== "static-cache-v1" && name !== "dynamic-cache-v1")
-                          .map(name => caches.delete(name))
-            );
-        })
-    );
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+    })
+  );
 });
+
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
     self.skipWaiting();
