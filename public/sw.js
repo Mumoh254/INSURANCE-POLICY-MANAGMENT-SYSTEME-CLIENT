@@ -7,8 +7,8 @@ self.addEventListener("install", (event) => {
                 "/index.html",
                 "/styles/styles.css",
                 "/dist/app.js",
-                "/icons/icon-192x192.png",
-                "/icons/icon-512x512.png"
+                "/chrome.png",
+                "/chrome.png"
             ]);
         })
     );
@@ -43,7 +43,6 @@ self.addEventListener("activate", (event) => {
         })
     );
 });
-
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
     self.skipWaiting();
