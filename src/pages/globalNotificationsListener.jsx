@@ -28,14 +28,14 @@ const GlobalNotifications = () => {
               applicationServerKey: convertedVapidKey,
             });
           }
-
           console.log("Push Subscription:", subscription);
+          
+          // Send the subscription to your server
           await fetch(`${SOCKET_URL}/notifications/subscribe`, {
             method: "POST",
             body: JSON.stringify(subscription),
             headers: { "Content-Type": "application/json" },
           });
-
         } catch (error) {
           console.error("Error during service worker registration:", error);
         }
