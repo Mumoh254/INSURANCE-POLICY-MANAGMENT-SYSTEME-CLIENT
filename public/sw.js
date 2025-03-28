@@ -1,5 +1,37 @@
 // public/sw.js
 
+
+
+self.addEventListener("install", (event) => {
+    event.waitUntil(
+        caches.open("static-cache").then((cache) => {
+            return cache.addAll([
+                "/public/index.html",
+                "/styles/styles.css",
+                "/src/app.js",
+                "/src/db.js",
+            ]);
+        })
+    );
+});
+
+self.addEventListener("fetch", (event) => {
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
+});
+
+
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Failed", err));
+}
+
+
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
     self.skipWaiting();
