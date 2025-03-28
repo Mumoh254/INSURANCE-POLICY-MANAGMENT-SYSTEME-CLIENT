@@ -1,12 +1,13 @@
-// GlobalNotifications.jsx
+// src/components/GlobalNotifications.jsx
+
 import React, { useEffect } from "react";
 import { io } from "socket.io-client";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
-const SOCKET_URL = "https://insurance-v1-api.onrender.com";
-const VAPID_PUBLIC_KEY = "BLjj0tJZJGdTRitJsGRzDGZxqg27SufqSj8K7iyEr46ioxIAB52kWRTzC3yMXPpGSN1AEfw5RcKYA-ubvk90t40";
-const NOTIFICATION_SOUND = "/sounds/notification.mp3";
+const SOCKET_URL = "https://weltcoverv1-insurancesystem.onrender.com"; // Update to your API URL
+const VAPID_PUBLIC_KEY = "BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90";   // Update to your VAPID public key
+const NOTIFICATION_SOUND = "/notifiy.mp3";
 
 const urlBase64ToUint8Array = (base64String) => {
   const padding = "=".repeat((4 - base64String.length % 4) % 4);
@@ -30,7 +31,7 @@ const GlobalNotifications = () => {
         });
         console.log("[SW] Registered:", registration);
 
-        // Request notification permission
+        // Request notification permission from the user
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
           Swal.fire({
@@ -43,7 +44,7 @@ const GlobalNotifications = () => {
           return;
         }
 
-        // Check for existing subscription
+        // Check for an existing push subscription
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
           const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -92,7 +93,7 @@ const GlobalNotifications = () => {
     });
     socket.on("new_notification", (notification) => {
       console.log("[Socket] New notification received:", notification);
-      // Play sound
+      // Play a notification sound on the client side
       new Audio(NOTIFICATION_SOUND).play().catch(e =>
         console.error("[Audio] Play error:", e.message)
       );

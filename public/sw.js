@@ -1,4 +1,5 @@
-// sw.js
+// public/sw.js
+
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
     self.skipWaiting();
@@ -9,11 +10,11 @@ self.addEventListener("install", (event) => {
     event.waitUntil(clients.claim());
   });
   
-  self.addEventListener("push", async (event) => {
+  self.addEventListener("push", (event) => {
     console.log("[SW] Push event received");
     let payload = {};
     try {
-      payload = event.data?.json() || {};
+      payload = event.data ? event.data.json() : {};
       console.log("[SW] Payload:", payload);
     } catch (error) {
       console.error("[SW] Error parsing push payload:", error);
@@ -28,18 +29,6 @@ self.addEventListener("install", (event) => {
       actions: payload.actions || []
     };
   
-    // Attempt to play a sound (note: many browsers restrict autoplay in SWs)
-    if (payload.sound) {
-      try {
-        const audio = new Audio(payload.sound);
-        audio.volume = 0.5;
-        await audio.play();
-        console.log("[SW] Sound played");
-      } catch (error) {
-        console.error("[SW] Sound play failed:", error.message);
-      }
-    }
-  
     event.waitUntil(
       self.registration.showNotification(title, options)
         .then(() => console.log("[SW] Notification shown"))
@@ -53,11 +42,13 @@ self.addEventListener("install", (event) => {
     const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
     event.waitUntil(
       clients.matchAll({ type: "window" }).then((windowClients) => {
+        // If a window matching the URL is already open, focus it.
         for (let client of windowClients) {
           if (client.url === urlToOpen && "focus" in client) {
             return client.focus();
           }
         }
+        // Otherwise, open a new window.
         if (clients.openWindow) {
           return clients.openWindow(urlToOpen);
         }
