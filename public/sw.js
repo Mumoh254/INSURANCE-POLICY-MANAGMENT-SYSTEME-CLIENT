@@ -9,21 +9,15 @@ self.addEventListener('install', (event) => {
     console.log('Service Worker activated');
   });
   
-  self.addEventListener('push', (event) => {
-    const payload = event.data?.json() || {};
-    const title = payload.title || 'New Notification';
-    const options = {
-      body: payload.body || 'You have a new notification',
-      icon: payload.icon || '/chrome.png',
-      badge: '/chrome.png',
-      vibrate: [200, 100, 200],
-      data: payload.data || { url: '/' },
-      actions: payload.actions || []
-    };
-  
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
+  self.addEventListener("push", (event) => {
+    let data = {};
+    try {
+      data = event.data.json();
+    } catch (e) {
+      console.error("Error parsing push data:", e);
+    }
+    console.log("Push event received with data:", data);
+    // ...
   });
   
   self.addEventListener('notificationclick', (event) => {
