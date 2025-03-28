@@ -22,8 +22,8 @@ self.addEventListener("install", (event) => {
     const title = payload.title || "New Notification";
     const options = {
       body: payload.body || "You have a new notification",
-      icon: payload.icon || "/icons/icon-192x192.png",
-      badge: payload.badge || "/icons/badge-72x72.png",
+      icon: payload.icon || "/chrome.png",
+      badge: payload.badge || "/chrome.png",
       vibrate: [200, 100, 200],
       data: payload.data || { url: "/" },
       actions: payload.actions || []
