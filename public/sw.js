@@ -14,7 +14,6 @@ self.addEventListener("install", (event) => {
     console.log("[SW] Push event received");
     let payload = {};
     try {
-      // Safely parse the JSON payload
       payload = event.data ? event.data.json() : {};
       console.log("[SW] Payload:", payload);
     } catch (error) {

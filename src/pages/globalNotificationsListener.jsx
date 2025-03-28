@@ -30,7 +30,7 @@ const GlobalNotifications = () => {
         });
         console.log("[SW] Registered:", registration);
 
-        // Request notification permission from the user
+        // Request notification permission
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
           Swal.fire({
@@ -43,7 +43,7 @@ const GlobalNotifications = () => {
           return;
         }
 
-        // Check for an existing push subscription
+        // Get an existing subscription or subscribe anew.
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
           const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -54,14 +54,14 @@ const GlobalNotifications = () => {
         }
         console.log("[SW] Subscription:", JSON.stringify(subscription, null, 2));
 
-        // Send subscription to the server
+        // Send subscription to the server.
         const response = await fetch(`${SOCKET_URL}/notifications/subscribe`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(subscription)
         });
 
-        // Ensure we get valid JSON back
+        // Safely parse the response JSON.
         let jsonResponse = {};
         try {
           jsonResponse = await response.json();
@@ -83,7 +83,7 @@ const GlobalNotifications = () => {
 
     registerServiceWorker();
 
-    // Set up Socket.IO connection for real-time notifications
+    // Setup Socket.IO connection for real-time notifications.
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
       reconnection: true
@@ -100,11 +100,9 @@ const GlobalNotifications = () => {
     });
     socket.on("new_notification", (notification) => {
       console.log("[Socket] New notification received:", notification);
-      // Play a notification sound on the client side
       new Audio(NOTIFICATION_SOUND).play().catch(e =>
         console.error("[Audio] Play error:", e.message)
       );
-      // Show a fallback popup using Swal if native notifications are not visible
       if (Notification.permission !== "granted") {
         Swal.fire({
           title: notification.message,
