@@ -1,141 +1,48 @@
-import React, { useEffect, useRef } from "react";
-import { io } from "socket.io-client";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
+import React, { useEffect } from "react";
 
 const SOCKET_URL = "https://insurance-v1-api.onrender.com";
-const NOTIFICATION_REDIRECT_URL = "/notifications"; // Change this URL to where you want to redirect
+const VAPID_PUBLIC_KEY = "BLjj0tJZJGdTRitJsGRzDGZxqg27SufqSj8K7iyEr46ioxIAB52kWRTzC3yMXPpGSN1AEfw5RcKYA-ubvk90t40";
+
+const urlBase64ToUint8Array = (base64String) => {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+};
 
 const GlobalNotifications = () => {
-  const socketRef = useRef(null);
-
   useEffect(() => {
-    // Register socket connection
-    socketRef.current = io(SOCKET_URL, {
-      reconnectionAttempts: 10,
-      reconnectionDelay: 2000,
-      withCredentials: true,
-    });
+    const registerServiceWorker = async () => {
+      if ("serviceWorker" in navigator && "PushManager" in window) {
+        try {
+          const registration = await navigator.serviceWorker.register("/sw.js");
+          console.log("Service Worker registered:", registration);
 
-    socketRef.current.on("connect", () => {
-      console.log("Global socket connected");
-    });
+          let subscription = await registration.pushManager.getSubscription();
+          if (!subscription) {
+            const convertedVapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+            subscription = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: convertedVapidKey,
+            });
+          }
 
-    socketRef.current.on("disconnect", (reason) => {
-      console.log("Global socket disconnected:", reason);
-    });
-
-    socketRef.current.on("reconnect_attempt", (attempt) => {
-      console.log(`Reconnection attempt #${attempt}`);
-    });
-
-    socketRef.current.on("reconnect_error", (error) => {
-      console.error("Reconnection error:", error);
-    });
-
-    socketRef.current.on("reconnect_failed", () => {
-      console.error("Reconnection failed");
-    });
-
-    // When a new notification arrives, trigger a native notification
-    socketRef.current.on("new_notification", (notification) => {
-      console.log("Global new notification:", notification);
-      if (!notification?.id) return;
-
-      // Play notification sound
-      const audio = new Audio("/notifiy.mp3");
-      audio.currentTime = 0;
-      audio.play().catch((error) => {
-        console.error("Audio playback failed:", error);
-        Swal.fire({
-          icon: "info",
-          title: "Sound blocked",
-          text: "Please interact with the page to enable notification sounds",
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 3000,
-        });
-      });
-
-      // Check if the browser supports notifications and permission is granted
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          // Create native notification with an icon and custom body
-          const nativeNotification = new Notification(notification.message, {
-            body: `Policy: ${notification.policy.policyName}\nUser: ${notification.user.name}`,
-            icon: "/path/to/your/icon.png", // Replace with your icon path
-            data: { redirectUrl: NOTIFICATION_REDIRECT_URL },
+          console.log("Push Subscription:", subscription);
+          await fetch(`${SOCKET_URL}/notifications/subscribe`, {
+            method: "POST",
+            body: JSON.stringify(subscription),
+            headers: { "Content-Type": "application/json" },
           });
 
-          // When the native notification is clicked, redirect the user
-          nativeNotification.onclick = (event) => {
-            event.preventDefault(); // Prevent the browser from focusing the Notification's tab
-            window.open(nativeNotification.data.redirectUrl, "_blank");
-          };
-        } else if (Notification.permission !== "denied") {
-          // Request permission if not already granted/denied
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              // Retry showing the notification once permission is granted
-              const nativeNotification = new Notification(notification.message, {
-                body: `Policy: ${notification.policy.policyName}\nUser: ${notification.user.name}`,
-                icon: "/chrome.png",
-                data: { redirectUrl: NOTIFICATION_REDIRECT_URL },
-              });
-              nativeNotification.onclick = (event) => {
-                event.preventDefault();
-                window.open(nativeNotification.data.redirectUrl, "_blank");
-              };
-            } else {
-              // Fallback to in-app alert if permission is denied
-              Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "success",
-                title: "NEW NOTIFICATION ALERT!",
-                html: `
-                  <div style="font-size: 14px;">
-                    <p>${notification.message}</p>
-                    <p><strong>Policy:</strong> ${notification.policy.policyName}</p>
-                    <p><strong>User:</strong> ${notification.user.name}</p>
-                  </div>
-                `,
-                showConfirmButton: true,
-                timer: 9000,
-                timerProgressBar: true,
-              });
-            }
-          });
+        } catch (error) {
+          console.error("Error during service worker registration:", error);
         }
-      } else {
-        // If notifications are not supported, use a fallback (in-app alert)
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          icon: "success",
-          title: "NEW NOTIFICATION ALERT!",
-          html: `
-            <div style="font-size: 14px;">
-              <p>${notification.message}</p>
-              <p><strong>Policy:</strong> ${notification.policy.policyName}</p>
-              <p><strong>User:</strong> ${notification.user.name}</p>
-            </div>
-          `,
-          showConfirmButton: true,
-          timer: 9000,
-          timerProgressBar: true,
-        });
-      }
-    });
-
-    // Clean up on unmount
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off("new_notification");
-        socketRef.current.disconnect();
       }
     };
+
+    registerServiceWorker();
   }, []);
 
   return null;
