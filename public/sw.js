@@ -10,9 +10,39 @@ self.addEventListener('push', (event) => {
     );
   });
   
-  self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    if (event.notification.data.url) {
-      clients.openWindow(event.notification.data.url);
+  self.addEventListener("push", (event) => {
+    let data = {};
+    try {
+      data = event.data.json();
+    } catch (e) {
+      console.error("Error parsing push data:", e);
     }
+    
+    // Ensure you have a title, body, and icon defined.
+    const title = data.title || "New Notification";
+    const options = {
+      body: data.body || "You have a new notification.",
+      icon: data.icon || "/default-icon.png",  // Ensure this file exists and is accessible over HTTPS.
+      badge: data.badge || "/default-badge.png", // Optional: A small icon for the badge.
+      data: { redirectUrl: data.redirectUrl || "/" }
+    };
+  
+    event.waitUntil(self.registration.showNotification(title, options));
   });
+  
+  self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
+    event.waitUntil(
+      clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
+        for (const client of clientList) {
+          if (client.url === event.notification.data.redirectUrl && "focus" in client) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(event.notification.data.redirectUrl);
+        }
+      })
+    );
+  });
+  
