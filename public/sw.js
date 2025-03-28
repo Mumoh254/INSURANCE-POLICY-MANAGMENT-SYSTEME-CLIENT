@@ -33,12 +33,12 @@ self.addEventListener("push", (event) => {
         {
           action: "view",
           title: "View",
-          icon: "/view-icon.png"               // Optional: add an action icon if available
+          icon: "/chrome.png"               // Optional: add an action icon if available
         },
         {
           action: "dismiss",
           title: "Dismiss",
-          icon: "/dismiss-icon.png"            // Optional: add an action icon if available
+        //   icon: "/dismiss-icon.png"            // Optional: add an action icon if available
         }
       ]
     };

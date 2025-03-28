@@ -3,13 +3,14 @@ import React, { useEffect } from "react";
 const SOCKET_URL = "https://insurance-v1-api.onrender.com";
 const VAPID_PUBLIC_KEY = "BLjj0tJZJGdTRitJsGRzDGZxqg27SufqSj8K7iyEr46ioxIAB52kWRTzC3yMXPpGSN1AEfw5RcKYA-ubvk90t40";
 
+// Utility function to convert the base64 VAPID key to a Uint8Array
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
     .replace(/-/g, '+')
     .replace(/_/g, '/');
   const rawData = window.atob(base64);
-  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+  return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
 };
 
 const GlobalNotifications = () => {
@@ -39,6 +40,8 @@ const GlobalNotifications = () => {
         } catch (error) {
           console.error("Error during service worker registration:", error);
         }
+      } else {
+        console.warn("Service Workers or Push Messaging are not supported in this browser.");
       }
     };
 
