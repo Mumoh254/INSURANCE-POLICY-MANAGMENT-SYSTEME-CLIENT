@@ -9,7 +9,7 @@ import {
   faInfoCircle, faDownload, faMapMarkerAlt
 } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'js-cookie';
-import { decode as jwt_decode } from 'jwt-decode';
+import * as jwtDecodeImport from 'jwt-decode';
 
 import Policies from '../policies';
 import Charts from '../chart';
@@ -25,6 +25,9 @@ import EditPolicy from '../updatepolicy';
 import UserDetails from '../singleUser';
 import GlobalNotifications from '../globalNotificationsListener';
 
+
+const jwt_decode = (token) =>
+  jwtDecodeImport.default ? jwtDecodeImport.default(token) : jwtDecodeImport(token);
 // Added a simple RealTimeClock component
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
