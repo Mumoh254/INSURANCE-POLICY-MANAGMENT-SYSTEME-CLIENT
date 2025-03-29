@@ -282,6 +282,26 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedLayout />}>
           {/* ... other routes remain the same ... */}
+
+
+          <Route path="/policies" element={<Policies />} />
+<Route path="/payment" element={<Payment />} />
+<Route path="/schedule" element={<InsuranceCalendar />} />
+<Route path="/sheets" element={<PolicyList />} />
+<Route path="/policy-holder" element={<CreationMenu />} />
+<Route path="/analytics" element={<Charts />} />
+<Route path="/notifications" element={<Notifications />} />
+<Route path="/policies/:id" element={<PolicyDetails />} />
+<Route path="/edit-policy/:id" element={<EditPolicy />} />
+<Route path="/users/:id" element={<UserDetails />} />
+<Route path="/create-admin" element={<AdminManagement />} />
+<Route path="/create-health" element={<div>Health Policy Creation</div>} />
+<Route path="/create-car" element={<div>Car Policy Creation</div>} />
+<Route path="/create-user" element={<div>User Profile Creation</div>} />
+<Route path="/create-student" element={<div>Student Policy Creation</div>} />
+<Route path="/" element={<Navigate to="/policies" replace />} />
+
+
         </Route>
       </Routes>
     </Router>
