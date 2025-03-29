@@ -4,22 +4,33 @@
 <head>
   <title>Offline</title>
   <style>
-    .offline-banner {
+    .offline-modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 20px;
+      right: 20px;
       background: #ff4444;
       color: white;
       padding: 1rem;
-      text-align: center;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 1000;
+      animation: slideIn 0.3s, fadeOut 1s 2s forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="offline-banner">You are currently offline</div>
+  <div class="offline-modal">You are currently offline</div>
   <h1>Offline Mode</h1>
-  <p>Please check your internet connection</p>
+  <p>Some features may be unavailable</p>
 </body>
 </html>

@@ -1,6 +1,7 @@
 // public/sw.js
-const CACHE_NAME = 'static-cache-v2';
+const CACHE_NAME = 'static-cache-v3';
 const OFFLINE_PAGE = '/offline.html';
+const RUNTIME_CACHE = 'runtime-cache-v1';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -16,13 +17,26 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Handle navigation requests
+  // Handle all navigation requests
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
-        .catch(() => caches.match(OFFLINE_PAGE))
+        .then(response => {
+          // Cache the page as it's visited
+          const clonedResponse = response.clone();
+          caches.open(RUNTIME_CACHE).then(cache => {
+            cache.put(event.request, clonedResponse);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Try to return cached version, fallback to offline page
+          return caches.match(event.request)
+            .then(response => response || caches.match(OFFLINE_PAGE));
+        })
     );
   } else {
+    // Cache-first strategy for other assets
     event.respondWith(
       caches.match(event.request)
         .then(response => response || fetch(event.request))
@@ -34,12 +48,15 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+        cacheNames.filter(name => 
+          name !== CACHE_NAME && name !== RUNTIME_CACHE
+        ).map(name => caches.delete(name))
       );
     })
   );
 });
+
+
 
 self.addEventListener("install", (event) => {
     console.log("[SW] Install event");
