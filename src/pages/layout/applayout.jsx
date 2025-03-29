@@ -20,11 +20,15 @@ import {
   faUserGraduate,
   faGlobe,
   faInfoCircle,
-  faTiktok,
-  faInstagram,
+
   faBuilding,
   faCodeBranch
 } from '@fortawesome/free-solid-svg-icons';
+
+
+import { faGlobe, faInfoCircle, faBuilding } from "@fortawesome/free-solid-svg-icons";
+import { faInstagram } from "@fortawesome/free-brands-svg-icons";
+
 import { Alert } from 'react-bootstrap';
 import Policies from '../policies';
 import Charts from '../chart';
