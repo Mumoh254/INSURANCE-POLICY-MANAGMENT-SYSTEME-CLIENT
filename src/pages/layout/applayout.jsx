@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Badge, Offcanvas, Button, Dropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, Badge, Offcanvas, Button, Dropdown, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faClock,
@@ -9,6 +9,7 @@ import {
   faCalendarAlt,
   faBell,
   faUserShield,
+  faHeart,
   faCar,
   faUser,
   faShieldHalved,
@@ -16,14 +17,13 @@ import {
   faEnvelope,
   faShield,
   faCircleCheck,
+  faUserGraduate,
   faGlobe,
-  faDownload,
-  faInfoCircle
+  faInfoCircle,
+  faBuilding,
+  faCodeBranch
 } from '@fortawesome/free-solid-svg-icons';
-import * as jwtDecodeImport from 'jwt-decode';
-import Cookies from 'js-cookie';
-
-// Import your pages/components
+import { Alert } from 'react-bootstrap';
 import Policies from '../policies';
 import Charts from '../chart';
 import Notifications from '../notifications';
@@ -36,13 +36,108 @@ import AdminManagement from '../adminManagment';
 import PolicyDetails from '../view';
 import EditPolicy from '../updatepolicy';
 import UserDetails from '../singleUser';
+import Cookies from 'js-cookie';
+import * as jwt_decode from 'jwt-decode';
 import GlobalNotifications from '../globalNotificationsListener';
 
-// Helper to decode JWT (handles default export issues)
-const jwt_decode = (token) =>
-  jwtDecodeImport.default ? jwtDecodeImport.default(token) : jwtDecodeImport(token);
+// Company Information Modal
+const CompanyInfoModal = ({ show, handleClose }) => (
+  <Modal show={show} onHide={handleClose} centered>
+    <Modal.Header closeButton className="bg-dark text-light">
+      <Modal.Title>
+        <FontAwesomeIcon icon={faBuilding} className="me-2" />
+        Company Information
+      </Modal.Title>
+    </Modal.Header>
+    <Modal.Body className="bg-light">
+      <div className="row g-3">
+        <div className="col-12">
+          <h5 className="text-primary mb-3">Welt-Cover Insurance Solutions</h5>
+          <ul className="list-unstyled">
+            <li><FontAwesomeIcon icon={faEnvelope} className="me-2" /> info@weltcover.co.ke</li>
+            <li><FontAwesomeIcon icon={faPhone} className="me-2" /> +254 700 000 000</li>
+            <li><FontAwesomeIcon icon={faCodeBranch} className="me-2" /> Version: V1.1.4</li>
+            <li><FontAwesomeIcon icon={faCalendarAlt} className="me-2" /> Last Updated: 2023-11-15</li>
+            <li><FontAwesomeIcon icon={faUserShield} className="me-2" /> Licensed to: Welt-Tallis Group</li>
+            <li><FontAwesomeIcon icon={faGlobe} className="me-2" /> Headquarters: Nairobi, Kenya</li>
+          </ul>
+        </div>
+      </div>
+    </Modal.Body>
+  </Modal>
+);
 
-// A simple real-time clock component
+// Admin Profile Dropdown
+const AdminDropdown = ({ loginTime, handleLogout }) => {
+  const [remaining, setRemaining] = useState(4 * 60 * 60 * 1000);
+  const [location] = useState("Nairobi, Kenya");
+  const [adminName, setAdminName] = useState("Admin");
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const decoded = jwt_decode.jwtDecode(token);
+        setAdminName(decoded.name || "Admin");
+      } catch (error) {
+        console.error('Token decode error:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - loginTime;
+      setRemaining(4 * 60 * 60 * 1000 - elapsed);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [loginTime]);
+
+  const formatTime = (ms) => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m remaining`;
+  };
+
+  return (
+    <Dropdown align="end">
+      <Dropdown.Toggle variant="dark" id="admin-dropdown" className="d-flex align-items-center gap-2">
+        <FontAwesomeIcon icon={faUserShield} />
+        <span className="d-none d-lg-inline">{adminName}</span>
+      </Dropdown.Toggle>
+
+      <Dropdown.Menu className="shadow-lg border-0" style={{ minWidth: '250px' }}>
+        <div className="px-3 py-2 bg-primary text-white rounded-top">
+          <h6 className="mb-0">Admin Profile</h6>
+        </div>
+        <div className="p-3">
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <FontAwesomeIcon icon={faGlobe} className="text-muted" />
+            <span>{location}</span>
+          </div>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <FontAwesomeIcon icon={faClock} className="text-muted" />
+            <span>Logged in at: {new Date(loginTime).toLocaleTimeString()}</span>
+          </div>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <FontAwesomeIcon icon={faClock} className="text-danger" />
+            <span>{formatTime(remaining)}</span>
+          </div>
+          <Button 
+            variant="danger" 
+            onClick={handleLogout} 
+            className="w-100 mt-2"
+          >
+            Logout
+          </Button>
+        </div>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
+
+// Real-time Clock component
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -57,171 +152,172 @@ const RealTimeClock = () => {
   );
 };
 
-// RealtimeInfo displays current date, time, and a fixed location ("Kenya, Nairobi")
-const RealtimeInfo = () => {
+// RealtimeInfo component for Offcanvas (mobile sidebar)
+const RealtimeInfo = ({ loginTime }) => {
   const [date, setDate] = useState(new Date());
+  const [remaining, setRemaining] = useState(4 * 60 * 60 * 1000);
+
   useEffect(() => {
-    const timer = setInterval(() => setDate(new Date()), 60000);
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - loginTime;
+      setRemaining(4 * 60 * 60 * 1000 - elapsed);
+      setDate(new Date());
+    }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [loginTime]);
+
+  const formatTime = (ms) => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  };
+
   const options = { weekday: 'long', month: 'long', day: 'numeric' };
   const formattedDate = date.toLocaleDateString(undefined, options);
-  const formattedTime = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: 'numeric' });
+  
   return (
-    <div className="realtime-info p-3 my-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
-      <div className="d-flex align-items-center mb-2">
-        <FontAwesomeIcon icon={faCalendarAlt} className="me-2 text-secondary" />
-        <span className="text-secondary">{formattedDate}</span>
+    <div className="realtime-info p-3 my-3 rounded-3" style={{ background: 'linear-gradient(145deg, #1a1a1a, #2a2a2a)' }}>
+      <div className="d-flex align-items-center mb-2 text-info">
+        <FontAwesomeIcon icon={faCalendarAlt} className="me-2" />
+        <span>{formattedDate}</span>
       </div>
-      <div className="d-flex align-items-center mb-2">
-        <FontAwesomeIcon icon={faClock} className="me-2 text-secondary" />
-        <span className="text-secondary">{formattedTime}</span>
+      <div className="d-flex align-items-center mb-2 text-warning">
+        <FontAwesomeIcon icon={faClock} className="me-2" />
+        <span>{date.toLocaleTimeString()}</span>
       </div>
-      <div className="d-flex align-items-center">
-        <FontAwesomeIcon icon={faGlobe} className="me-2 text-secondary" />
-        <span className="text-secondary">Kenya, Nairobi</span>
+      <div className="d-flex align-items-center mb-2 text-success">
+        <FontAwesomeIcon icon={faGlobe} className="me-2" />
+        <span>Nairobi, Kenya</span>
+      </div>
+      <div className="d-flex align-items-center text-danger">
+        <FontAwesomeIcon icon={faClock} className="me-2" />
+        <span>{formatTime(remaining)} remaining</span>
       </div>
     </div>
   );
 };
 
-// Extended Sidebar for mobile extra info (shows contact, version, etc.)
-const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
-  return (
-    <Offcanvas
-      show={show}
-      onHide={handleClose}
-      placement="end"
-      className="modern-sidebar"
-      style={{ maxWidth: '300px' }}
-    >
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Extra Information</Offcanvas.Title>
-      </Offcanvas.Header>
-      <Offcanvas.Body>
-        <div className="contact-info mb-4">
-          <h5>
-            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />About Software
-          </h5>
-          <div className="mb-3">
-            <FontAwesomeIcon icon={faEnvelope} className="me-2" />
-            <strong>Email:</strong> infowelttallis@gmail.com
-          </div>
-          <div className="mb-3">
-            <FontAwesomeIcon icon={faPhone} className="me-2" />
-            <strong>Phone:</strong> +254 740 045355
-          </div>
-          <div className="mb-3">
-            <FontAwesomeIcon icon={faDownload} className="me-2" />
-            <strong>Version:</strong> 1.1.4
-          </div>
-          <div className="mb-3">
-            <strong>Developed by:</strong> Welt Tallis
-          </div>
-          <div className="mb-3">
-            <strong>Location:</strong> Kenya, Nairobi
-          </div>
-        </div>
-
-        <RealtimeInfo />
-
-        <div className="mt-3">
-          <Button variant="outline-secondary" onClick={extendSession} className="w-100">
-            Extend Session
-          </Button>
-        </div>
-
-        <div className="mt-4 pt-2 border-top">
-          <div className="d-flex align-items-center gap-2">
-            <span className="text-muted">Logged in as:</span>
-            <Badge pill bg="danger" className="fs-8">
-              <FontAwesomeIcon icon={faUser} className="me-2" />
-              {userName}
-            </Badge>
-          </div>
-        </div>
-      </Offcanvas.Body>
-    </Offcanvas>
-  );
-};
-
-// Desktop dropdown for "More Info" (shows profile with name, login time, session countdown)
-const UserInfoDropdown = ({ userName, loginTime, timeRemaining, extendSession }) => {
-  const formatTime = (seconds) => {
-    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const ss = String(seconds % 60).padStart(2, '0');
-    return `${mm}:${ss}`;
-  };
-
-  return (
-    <Dropdown align="end">
-      <Dropdown.Toggle variant="secondary" id="dropdown-userinfo">
-        <FontAwesomeIcon icon={faUser} className="me-2" />
-        {userName}
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.ItemText>
-          <div>
-            <strong>Login Time:</strong> {loginTime.toLocaleTimeString()}
-          </div>
-          <div>
-            <strong>Session Ends In:</strong> {formatTime(timeRemaining)}
-          </div>
-        </Dropdown.ItemText>
-        <Dropdown.Divider />
-        <Dropdown.Item onClick={extendSession}>Extend Session</Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-};
-
-// Main Protected Layout Component
-const ProtectedLayout = () => {
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showExtendedSidebar, setShowExtendedSidebar] = useState(false);
-  const [theme, setTheme] = useState('dark');
-  const [sessionExpiryTime, setSessionExpiryTime] = useState(Date.now() + 4 * 60 * 60 * 1000); // 4 hours
-  const [timeRemaining, setTimeRemaining] = useState(4 * 60 * 60); // in seconds
-  const [loginTime] = useState(new Date());
-  const authToken = localStorage.getItem('authToken');
-  const userRole = localStorage.getItem('userRole');
-  const navigate = useNavigate();
-
-  let userName = 'User';
-  if (authToken) {
+// Footer component with security warning
+const Footer = () => {
+  const token = localStorage.getItem('authToken');
+  let userName = 'Live';
+  if (token) {
     try {
-      const decoded = jwt_decode(authToken);
-      // Prefer name property over email
-      userName = decoded.name || 'User';
+      const decoded = jwt_decode.jwtDecode(token);
+      userName = decoded.name || decoded.email || 'Live';
     } catch (error) {
       console.error('Token decode error:', error);
     }
   }
+  return (
+    <footer className="bg-black text-white py-4 mt-auto border-top border-secondary">
+      <Container fluid className="px-2 px-md-4">
+        <Alert variant="danger" className="d-flex align-items-center mb-4" dismissible>
+          <FontAwesomeIcon icon={faShieldHalved} className="me-2 fs-4" />
+          <div>
+            <strong>SECURITY ALERT:</strong> In case of suspected data breach, immediately contact:
+            <div className="mt-1">
+              <a href="tel:+2547400453555" className="text-white text-decoration-none me-3">
+                <FontAwesomeIcon icon={faPhone} className="me-1" />
+                +254 740 0453555
+              </a>
+              <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
+                <FontAwesomeIcon icon={faEnvelope} className="me-1" />
+                infowelttallis@gmail.com
+              </a>
+            </div>
+          </div>
+        </Alert>
 
-  // Extend session by resetting expiry time to 4 hours from now
-  const extendSession = () => {
-    const newExpiry = Date.now() + 4 * 60 * 60 * 1000;
-    setSessionExpiryTime(newExpiry);
-  };
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+          <div className="d-flex flex-wrap justify-content-center gap-2 gap-md-3">
+            {[
+              { to: "/policy-holder", icon: faUserShield },
+              { to: "/sheets", icon: faFileContract },
+              { to: "/analytics", icon: faChartLine },
+              { to: "/calender", icon: faCalendarAlt },
+              { to: "/notifications", icon: faBell },
+              { to: "/create-admin", icon: faUserShield },
+            ].map((link) => (
+              <NavLink 
+                key={link.to}
+                to={link.to} 
+                className="text-decoration-none"
+              >
+                <FontAwesomeIcon 
+                  icon={link.icon}
+                  className="text-primary hover-scale px-2 px-md-3"
+                  style={{ fontSize: '1.5rem', transition: 'transform 0.2s', cursor: 'pointer' }}
+                />
+              </NavLink>
+            ))}
+          </div>
 
-  // Update remaining session time every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const seconds = Math.max(0, Math.floor((sessionExpiryTime - Date.now()) / 1000));
-      setTimeRemaining(seconds);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [sessionExpiryTime]);
+          <div className="d-flex align-items-center gap-2 text-center">
+            <span className="text-muted">Active Admin User:</span>
+            <Badge pill bg="danger" className="fs-6 px-3 py-2">
+              <FontAwesomeIcon icon={faUserShield} className="me-2" />
+              {userName}
+            </Badge>
+          </div>
+        </div>
 
-  // Auto-logout when session expires
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      navigate('/login');
-    }, sessionExpiryTime - Date.now());
-    return () => clearTimeout(timer);
-  }, [sessionExpiryTime, navigate]);
+        <div className="row mt-4 text-center">
+          <div className="col-md-6 mb-3 mb-md-0">
+            <div className="d-flex justify-content-center gap-3">
+              <a href="tel:+2547400453555" className="text-white text-decoration-none">
+                <FontAwesomeIcon icon={faPhone} className="me-2" />
+                Emergency Support
+              </a>
+              <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
+                <FontAwesomeIcon icon={faEnvelope} className="me-2" />
+                Security Team
+              </a>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <small className="text-secondary">
+              &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 insure-Sys. All rights reserved.
+              <span className="mx-2">|</span>
+              <span className="d-block d-md-inline mt-1 mt-md-0">
+                Secure Admin Portal | ISO 27001 Certified | GDPR Compliant
+              </span>
+            </small>
+          </div>
+        </div>
+
+        <div className="text-center mt-3">
+          <a 
+            href="/welt_tallis_insurance_software_guide.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn btn-outline-light btn-sm"
+          >
+            Download Software Guide (PDF)
+          </a>
+        </div>
+
+        <div className="text-center mt-3">
+          <Badge bg="dark" className="px-3 py-2">
+            <FontAwesomeIcon icon={faShield} className="text-success me-2" />
+            Real-time System Monitoring Active
+            <FontAwesomeIcon icon={faCircleCheck} className="text-success ms-2" />
+          </Badge>
+        </div>
+      </Container>
+    </footer>
+  );
+};
+
+// Protected Layout with responsive mobile sidebar
+const ProtectedLayout = () => {
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showCompanyInfo, setShowCompanyInfo] = useState(false);
+  const [theme] = useState('dark');
+  const [loginTime] = useState(Date.now());
+  const authToken = localStorage.getItem('authToken');
+  const userRole = localStorage.getItem('userRole');
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -229,91 +325,112 @@ const ProtectedLayout = () => {
     navigate('/login');
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleLogout();
+    }, 4 * 60 * 60 * 1000); // 4 hours
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (!authToken || userRole !== 'ADMIN') {
     return <Navigate to="/login" replace />;
   }
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Desktop Navbar */}
       <Navbar variant="dark" expand="lg" className="shadow-sm fixed-top py-2" style={{ background: "#0a0a0a" }}>
         <Container fluid className="px-3">
           <div className="d-flex justify-content-between w-100 align-items-center">
-            {/* Brand Logo */}
             <Navbar.Brand as={NavLink} to="/policies" className="d-flex align-items-center gap-2">
               <FontAwesomeIcon icon={faUserShield} className="text-primary fs-4" />
               <span className="h6 mb-0 d-none d-md-block">WELT-COVER V1</span>
             </Navbar.Brand>
 
-            {/* Desktop Navigation */}
-            <Navbar.Collapse id="main-nav">
-              <Nav className="mx-auto align-items-center gap-4">
-                {[
-                  { to: "/policies", text: "Policies" },
-                  { to: "/sheets", text: "Sheets" },
-                  { to: "/policy-holder", text: "Policy-Holder" },
-                  { to: "/analytics", text: "Analytics" },
-                  { to: "/schedule", text: "Schedule" },
-                  { to: "/notifications", text: "Notifications" },
-                ].map((link) => (
-                  <Nav.Link
-                    key={link.to}
-                    as={NavLink}
-                    to={link.to}
-                    className="px-2 text-nowrap"
-                    style={{ fontSize: '0.95rem' }}
-                  >
-                    {link.text}
-                  </Nav.Link>
-                ))}
-              </Nav>
-
-              {/* Right Side Items */}
-              <Nav className="align-items-center gap-3 d-none d-lg-flex">
-                <RealTimeClock />
-                <UserInfoDropdown 
-                  userName={userName} 
-                  loginTime={loginTime} 
-                  timeRemaining={timeRemaining} 
-                  extendSession={extendSession} 
-                />
-                <Button onClick={handleLogout} variant="danger" size="lg" className="px-3">
-                  Logout
-                </Button>
-              </Nav>
-            </Navbar.Collapse>
+            <div className="d-flex align-items-center gap-3">
+              <Button 
+                variant="link" 
+                className="text-light"
+                onClick={() => setShowCompanyInfo(true)}
+              >
+                <FontAwesomeIcon icon={faInfoCircle} size="lg" />
+              </Button>
+              <AdminDropdown loginTime={loginTime} handleLogout={handleLogout} />
+            </div>
           </div>
+
+          <Navbar.Collapse id="main-nav">
+            <Nav className="mx-auto align-items-center gap-4">
+              {[
+                { to: "/policies", text: "Policies" },
+                { to: "/sheets", text: "Sheets" },
+                { to: "/policy-holder", text: "Policy-Holder" },
+                { to: "/analytics", text: "Analytics" },
+                { to: "/schedule", text: "Schedule" },
+                { to: "/notifications", text: "Notifications" },
+              ].map((link) => (
+                <Nav.Link
+                  key={link.to}
+                  as={NavLink}
+                  to={link.to}
+                  className="px-2 text-nowrap"
+                  style={{ fontSize: '0.95rem' }}
+                >
+                  {link.text}
+                </Nav.Link>
+              ))}
+            </Nav>
+            
+            <Nav className="align-items-center gap-3 d-none d-lg-flex">
+              <RealTimeClock />
+            </Nav>
+          </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      {/* Mobile Floating Menu Button */}
+      {/* Mobile Menu Button */}
       <div className="d-lg-none fixed-bottom pe-3 pb-3" style={{ zIndex: 1000 }}>
         <Button
           onClick={() => setShowMobileMenu(true)}
           variant="primary"
           size="lg"
           className="shadow-lg"
-          style={{ width: '55px', height: '55px' }}
+          style={{ width: '55px', height: '55px', bottom: '20px', right: '20px', position: 'fixed' }}
         >
           ☰
         </Button>
       </div>
 
-      {/* Mobile Offcanvas Navigation */}
+      {/* Enhanced Mobile Sidebar */}
       <Offcanvas
         show={showMobileMenu}
         onHide={() => setShowMobileMenu(false)}
         placement="end"
-        style={{
-          background: theme === 'light' ? "#f4f4f4" : "#111111",
-          color: theme === 'light' ? "black" : "white",
-          width: '280px'
+        className="bg-gradient"
+        style={{ 
+          background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+          width: '300px'
         }}
       >
-        <Offcanvas.Header closeButton closeVariant={theme === 'light' ? "dark" : "white"}>
-          <Offcanvas.Title className="fs-6">Navigation Menu</Offcanvas.Title>
+        <Offcanvas.Header className="border-bottom border-secondary">
+          <Offcanvas.Title className="text-light">
+            <FontAwesomeIcon icon={faUserShield} className="me-2" />
+            Admin Panel
+          </Offcanvas.Title>
         </Offcanvas.Header>
-        <Offcanvas.Body className="pt-2">
+        
+        <Offcanvas.Body className="pt-4">
+          <RealtimeInfo loginTime={loginTime} />
+          
+          <Button 
+            variant="outline-info" 
+            className="w-100 mb-3 d-flex align-items-center gap-2"
+            onClick={() => setShowCompanyInfo(true)}
+          >
+            <FontAwesomeIcon icon={faInfoCircle} />
+            Company Info
+          </Button>
+
           <Nav className="flex-column gap-2">
             {[
               { to: "/policies", text: "Policies", icon: faUserShield },
@@ -322,13 +439,14 @@ const ProtectedLayout = () => {
               { to: "/analytics", text: "Analytics", icon: faCalendarAlt },
               { to: "/schedule", text: "Schedule", icon: faBell },
               { to: "/notifications", text: "Notifications", icon: faBell },
+              { to: "/create-admin", text: "Admin Management", icon: faUserShield },
             ].map((link) => (
               <Nav.Link
                 key={link.to}
                 as={NavLink}
                 to={link.to}
                 onClick={() => setShowMobileMenu(false)}
-                className="py-2 px-3 d-flex align-items-center gap-3"
+                className="py-2 px-3 d-flex align-items-center gap-3 text-light"
                 style={{ fontSize: '0.9rem' }}
               >
                 <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
@@ -337,96 +455,36 @@ const ProtectedLayout = () => {
             ))}
           </Nav>
 
-          <div className="mt-3">
-            <Button
-              variant="outline-primary"
-              className="w-100"
-              onClick={() => {
-                setShowMobileMenu(false);
-                navigate('/create-admin');
-              }}
+          <div className="mt-4 pt-3 border-top border-secondary">
+            <Button 
+              variant="danger" 
+              onClick={handleLogout}
+              className="w-100 d-flex align-items-center gap-2"
             >
-              Admin Management
+              <FontAwesomeIcon icon={faUserShield} />
+              Logout
             </Button>
-          </div>
-
-          {/* Extra info in mobile sidebar */}
-          <div className="mt-3 px-3 pt-2 border-top border-secondary">
-            <RealtimeInfo />
-          </div>
-
-          <div className="mt-3 px-3">
-            <Button
-              variant="outline-secondary"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="w-100"
-            >
-              {theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-            </Button>
-          </div>
-
-          <div className="mt-4 pt-2 border-top border-secondary">
-            <div className="d-flex align-items-center gap-2 text-center pt-2">
-              <span className="text-muted">Logged in as:</span>
-              <Badge pill className="fs-8 px-3 py-2 bg-danger">
-                <FontAwesomeIcon icon={faUser} className="me-2" />
-                {userName}
-              </Badge>
-            </div>
-            <div className="mt-2">
-              <Button variant="outline-secondary" onClick={extendSession} className="w-100">
-                Extend Session
-              </Button>
-            </div>
           </div>
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Extended Sidebar (Mobile extra info trigger) */}
-      <ExtendedSidebar 
-        show={showExtendedSidebar} 
-        handleClose={() => setShowExtendedSidebar(false)} 
-        userName={userName}
-        extendSession={extendSession}
+      <CompanyInfoModal 
+        show={showCompanyInfo} 
+        handleClose={() => setShowCompanyInfo(false)} 
       />
 
-      {/* Main Content Area */}
       <main className="flex-grow-1 py-4 bg-light" style={{ marginTop: '70px' }}>
         <Container fluid className="px-3 px-lg-4">
           <Outlet />
         </Container>
       </main>
-
-      {/* Footer */}
+      
       <Footer />
     </div>
   );
 };
 
-// Footer Component with modern styling
-const Footer = () => {
-  return (
-    <footer className="bg-dark text-white py-4 mt-auto border-top border-secondary">
-      <Container fluid className="px-3 px-md-4">
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-          <div className="text-center text-md-start">
-            <small className="text-secondary">
-              &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 | Secure Admin Portal
-            </small>
-          </div>
-          <div className="text-center">
-            <Badge bg="secondary" className="px-3 py-2">
-              <FontAwesomeIcon icon={faShield} className="text-success me-2" />
-              Real-time System Monitoring <FontAwesomeIcon icon={faCircleCheck} className="text-success ms-2" />
-            </Badge>
-          </div>
-        </div>
-      </Container>
-    </footer>
-  );
-};
-
-// Main App Component with Routes
+// Main App Component
 const App = () => {
   return (
     <Router>
@@ -445,10 +503,6 @@ const App = () => {
           <Route path="/edit-policy/:id" element={<EditPolicy />} />
           <Route path="/users/:id" element={<UserDetails />} />
           <Route path="/create-admin" element={<AdminManagement />} />
-          <Route path="/create-health" element={<div>Health Policy Creation</div>} />
-          <Route path="/create-car" element={<div>Car Policy Creation</div>} />
-          <Route path="/create-user" element={<div>User Profile Creation</div>} />
-          <Route path="/create-student" element={<div>Student Policy Creation</div>} />
           <Route path="/" element={<Navigate to="/policies" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
