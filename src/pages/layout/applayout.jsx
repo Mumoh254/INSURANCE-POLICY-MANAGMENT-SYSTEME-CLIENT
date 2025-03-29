@@ -9,7 +9,8 @@ import {
   faInfoCircle, faDownload, faMapMarkerAlt
 } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'js-cookie';
-import jwt_decode from 'jwt-decode'; // fixed the import usage
+import { decode as jwt_decode } from 'jwt-decode';
+
 import Policies from '../policies';
 import Charts from '../chart';
 import Notifications from '../notifications';
