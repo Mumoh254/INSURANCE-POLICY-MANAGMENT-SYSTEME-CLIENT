@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Badge, Offcanvas, Button, Modal, Form } from 'react-bootstrap';
+import { Navbar, Nav, Container, Badge, Offcanvas, Button, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faClock, faFileContract, faChartLine, faCalendarAlt, faBell,
@@ -9,7 +9,7 @@ import {
   faInfoCircle, faDownload, faMapMarkerAlt
 } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'js-cookie';
-import * as jwt_decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode'; // fixed the import usage
 import Policies from '../policies';
 import Charts from '../chart';
 import Notifications from '../notifications';
@@ -24,6 +24,16 @@ import EditPolicy from '../updatepolicy';
 import UserDetails from '../singleUser';
 import GlobalNotifications from '../globalNotificationsListener';
 
+// Added a simple RealTimeClock component
+const RealTimeClock = () => {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return <span>{time.toLocaleTimeString()}</span>;
+};
+
 // Extended Sidebar Component
 const ExtendedSidebar = ({ show, handleClose }) => {
   return (
@@ -33,7 +43,9 @@ const ExtendedSidebar = ({ show, handleClose }) => {
       </Offcanvas.Header>
       <Offcanvas.Body>
         <div className="contact-info mb-4">
-          <h5><FontAwesomeIcon icon={faInfoCircle} className="me-2" />System Information</h5>
+          <h5>
+            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />System Information
+          </h5>
           <div className="mb-3">
             <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
             <strong>Location:</strong> Nairobi, Kenya
@@ -58,7 +70,9 @@ const ExtendedSidebar = ({ show, handleClose }) => {
         </Button>
 
         <div className="system-status">
-          <h5><FontAwesomeIcon icon={faShieldHalved} className="me-2" />System Status</h5>
+          <h5>
+            <FontAwesomeIcon icon={faShieldHalved} className="me-2" />System Status
+          </h5>
           <Badge bg="success" className="me-2">Secure Connection</Badge>
           <Badge bg="info">Version 1.1.4</Badge>
         </div>
@@ -89,14 +103,10 @@ const ProtectedLayout = () => {
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'click'];
-    events.forEach(event => 
-      window.addEventListener(event, resetInactivityTimer)
-    );
+    events.forEach(event => window.addEventListener(event, resetInactivityTimer));
     resetInactivityTimer();
     return () => {
-      events.forEach(event => 
-        window.removeEventListener(event, resetInactivityTimer)
-      );
+      events.forEach(event => window.removeEventListener(event, resetInactivityTimer));
       clearTimeout(inactivityTimer);
     };
   }, []);
@@ -104,7 +114,7 @@ const ProtectedLayout = () => {
   const getUserDetails = () => {
     if (!authToken) return { name: 'Administrator' };
     try {
-      const decoded = jwt_decode.jwtDecode(authToken);
+      const decoded = jwt_decode(authToken); // fixed usage here
       return { name: decoded.name || 'Administrator' };
     } catch (error) {
       return { name: 'Administrator' };
@@ -213,7 +223,6 @@ const ProtectedLayout = () => {
             <FontAwesomeIcon icon={faShieldHalved} className="me-2" />
             WELT-COVER Admin
           </Navbar.Brand>
-          
           <div className="d-flex align-items-center gap-3">
             <RealTimeClock />
             <Button variant="danger" onClick={handleLogout}>
@@ -278,30 +287,26 @@ const App = () => {
   return (
     <Router>
       <GlobalNotifications />
-      <Routes>   
+      <Routes>
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedLayout />}>
           {/* ... other routes remain the same ... */}
-
-
           <Route path="/policies" element={<Policies />} />
-<Route path="/payment" element={<Payment />} />
-<Route path="/schedule" element={<InsuranceCalendar />} />
-<Route path="/sheets" element={<PolicyList />} />
-<Route path="/policy-holder" element={<CreationMenu />} />
-<Route path="/analytics" element={<Charts />} />
-<Route path="/notifications" element={<Notifications />} />
-<Route path="/policies/:id" element={<PolicyDetails />} />
-<Route path="/edit-policy/:id" element={<EditPolicy />} />
-<Route path="/users/:id" element={<UserDetails />} />
-<Route path="/create-admin" element={<AdminManagement />} />
-<Route path="/create-health" element={<div>Health Policy Creation</div>} />
-<Route path="/create-car" element={<div>Car Policy Creation</div>} />
-<Route path="/create-user" element={<div>User Profile Creation</div>} />
-<Route path="/create-student" element={<div>Student Policy Creation</div>} />
-<Route path="/" element={<Navigate to="/policies" replace />} />
-
-
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/schedule" element={<InsuranceCalendar />} />
+          <Route path="/sheets" element={<PolicyList />} />
+          <Route path="/policy-holder" element={<CreationMenu />} />
+          <Route path="/analytics" element={<Charts />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/policies/:id" element={<PolicyDetails />} />
+          <Route path="/edit-policy/:id" element={<EditPolicy />} />
+          <Route path="/users/:id" element={<UserDetails />} />
+          <Route path="/create-admin" element={<AdminManagement />} />
+          <Route path="/create-health" element={<div>Health Policy Creation</div>} />
+          <Route path="/create-car" element={<div>Car Policy Creation</div>} />
+          <Route path="/create-user" element={<div>User Profile Creation</div>} />
+          <Route path="/create-student" element={<div>Student Policy Creation</div>} />
+          <Route path="/" element={<Navigate to="/policies" replace />} />
         </Route>
       </Routes>
     </Router>
