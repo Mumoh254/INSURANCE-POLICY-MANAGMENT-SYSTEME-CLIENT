@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import { HashRouter as Router, Routes, Route, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Container, Badge, Offcanvas, Button, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,10 +25,11 @@ import EditPolicy from '../updatepolicy';
 import UserDetails from '../singleUser';
 import GlobalNotifications from '../globalNotificationsListener';
 
-
+// jwt_decode helper function (handles default export issues)
 const jwt_decode = (token) =>
   jwtDecodeImport.default ? jwtDecodeImport.default(token) : jwtDecodeImport(token);
-// Added a simple RealTimeClock component
+
+// A simple real-time clock component
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -38,10 +39,16 @@ const RealTimeClock = () => {
   return <span>{time.toLocaleTimeString()}</span>;
 };
 
-// Extended Sidebar Component
+// Extended Sidebar Component with improved styling
 const ExtendedSidebar = ({ show, handleClose }) => {
   return (
-    <Offcanvas show={show} onHide={handleClose} placement="end" className="extended-sidebar">
+    <Offcanvas 
+      show={show} 
+      onHide={handleClose} 
+      placement="end" 
+      className="modern-sidebar"
+      style={{ maxWidth: '300px' }}  // limit sidebar width
+    >
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Contact & Support</Offcanvas.Title>
       </Offcanvas.Header>
@@ -92,18 +99,32 @@ const ProtectedLayout = () => {
   const [theme, setTheme] = useState('light');
   const [logoutWarning, setLogoutWarning] = useState(false);
   const [inactivityTimer, setInactivityTimer] = useState(null);
+  const [sessionExpiryTime, setSessionExpiryTime] = useState(Date.now() + 3600000); // 1 hour from now
+  const [timeRemaining, setTimeRemaining] = useState(3600); // seconds
+  const [loginTime] = useState(new Date());
   const authToken = localStorage.getItem('authToken');
   const navigate = useNavigate();
 
   // Auto-logout functionality
   const resetInactivityTimer = () => {
     clearTimeout(inactivityTimer);
+    const expiry = Date.now() + 3600000; // 1 hour from now
+    setSessionExpiryTime(expiry);
     const timer = setTimeout(() => {
       setLogoutWarning(true);
       setTimeout(handleLogout, 300000); // 5-minute grace period
-    }, 3600000); // 1 hour
+    }, 3600000);
     setInactivityTimer(timer);
   };
+
+  // Update time remaining every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const seconds = Math.max(0, Math.floor((sessionExpiryTime - Date.now()) / 1000));
+      setTimeRemaining(seconds);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sessionExpiryTime]);
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'click'];
@@ -118,7 +139,7 @@ const ProtectedLayout = () => {
   const getUserDetails = () => {
     if (!authToken) return { name: 'Administrator' };
     try {
-      const decoded = jwt_decode(authToken); // fixed usage here
+      const decoded = jwt_decode(authToken);
       return { name: decoded.name || 'Administrator' };
     } catch (error) {
       return { name: 'Administrator' };
@@ -197,6 +218,13 @@ const ProtectedLayout = () => {
     </Offcanvas>
   );
 
+  // Helper to format remaining time as MM:SS
+  const formatTime = (seconds) => {
+    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const ss = String(seconds % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  };
+
   return (
     <div className={`theme-${theme} d-flex flex-column min-vh-100`}>
       {/* Auto-logout Warning Modal */}
@@ -222,12 +250,18 @@ const ProtectedLayout = () => {
 
       {/* Main Navbar */}
       <Navbar variant={theme === 'light' ? 'light' : 'dark'} expand="lg" className="shadow-sm">
-        <Container fluid>
+        <Container fluid className="d-flex justify-content-between align-items-center">
           <Navbar.Brand as={NavLink} to="/policies">
             <FontAwesomeIcon icon={faShieldHalved} className="me-2" />
             WELT-COVER Admin
           </Navbar.Brand>
           <div className="d-flex align-items-center gap-3">
+            <div className="d-none d-md-block text-muted">
+              Logged in at: <strong>{loginTime.toLocaleTimeString()}</strong>
+            </div>
+            <div className="d-none d-md-block text-muted">
+              Session ends in: <strong>{formatTime(timeRemaining)}</strong>
+            </div>
             <RealTimeClock />
             <Button variant="danger" onClick={handleLogout}>
               Logout
