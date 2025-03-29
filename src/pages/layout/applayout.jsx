@@ -52,14 +52,14 @@ const CompanyInfoModal = ({ show, handleClose }) => (
     <Modal.Body className="bg-light">
       <div className="row g-3">
         <div className="col-12">
-          <h5 className="text-primary mb-3">Welt-Cover Insurance Solutions</h5>
+          <h5 className="text-primary mb-3"> WELT  TALLIS  </h5>
           <ul className="list-unstyled">
-            <li><FontAwesomeIcon icon={faEnvelope} className="me-2" /> info@weltcover.co.ke</li>
-            <li><FontAwesomeIcon icon={faPhone} className="me-2" /> +254 700 000 000</li>
+            <li><FontAwesomeIcon icon={faEnvelope} className="me-2" /> infowelttallis@gmail.com</li>
+            <li><FontAwesomeIcon icon={faPhone} className="me-2" /> +254 740  045  355</li>
             <li><FontAwesomeIcon icon={faCodeBranch} className="me-2" /> Version: V1.1.4</li>
-            <li><FontAwesomeIcon icon={faCalendarAlt} className="me-2" /> Last Updated: 2023-11-15</li>
+            <li><FontAwesomeIcon icon={faCalendarAlt} className="me-2" /> Last Updated: 2025-03-15</li>
             <li><FontAwesomeIcon icon={faUserShield} className="me-2" /> Licensed to: Welt-Tallis Group</li>
-            <li><FontAwesomeIcon icon={faGlobe} className="me-2" /> Headquarters: Nairobi, Kenya</li>
+            <li><FontAwesomeIcon icon={faGlobe} className="me-2" /> Headquarters: Nairobi, Keny a</li>
           </ul>
         </div>
       </div>
@@ -277,7 +277,7 @@ const Footer = () => {
           </div>
           <div className="col-md-6">
             <small className="text-secondary">
-              &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 insure-Sys. All rights reserved.
+              &copy; {new Date().getFullYear()} Welt-Cover V1.1.4  Automated-insure-Sys. All rights reserved.
               <span className="mx-2">|</span>
               <span className="d-block d-md-inline mt-1 mt-md-0">
                 Secure Admin Portal | ISO 27001 Certified | GDPR Compliant
@@ -408,7 +408,7 @@ const ProtectedLayout = () => {
         placement="end"
         className="bg-gradient"
         style={{ 
-          background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+          background: '#0000',
           width: '300px'
         }}
       >
