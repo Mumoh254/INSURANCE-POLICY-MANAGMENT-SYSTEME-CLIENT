@@ -9,7 +9,6 @@ import {
   faCalendarAlt,
   faBell,
   faUserShield,
-  faHeart,
   faCar,
   faUser,
   faShieldHalved,
@@ -17,7 +16,6 @@ import {
   faEnvelope,
   faShield,
   faCircleCheck,
-  faUserGraduate,
   faGlobe,
   faDownload,
   faInfoCircle
@@ -44,7 +42,7 @@ import GlobalNotifications from '../globalNotificationsListener';
 const jwt_decode = (token) =>
   jwtDecodeImport.default ? jwtDecodeImport.default(token) : jwtDecodeImport(token);
 
-// A simple real-time clock component (for display)
+// A simple real-time clock component
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -59,66 +57,51 @@ const RealTimeClock = () => {
   );
 };
 
-// RealtimeInfo for extra information (used on mobile sidebar)
+// RealtimeInfo displays current date, time, and a fixed location ("Kenya, Nairobi")
 const RealtimeInfo = () => {
   const [date, setDate] = useState(new Date());
-  const [location, setLocation] = useState("Fetching location...");
   useEffect(() => {
     const timer = setInterval(() => setDate(new Date()), 60000);
     return () => clearInterval(timer);
-  }, []);
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setLocation(`Lat: ${pos.coords.latitude.toFixed(2)}, Lon: ${pos.coords.longitude.toFixed(2)}`);
-        },
-        (err) => {
-          setLocation("Location unavailable");
-        }
-      );
-    } else {
-      setLocation("Geolocation not supported");
-    }
   }, []);
   const options = { weekday: 'long', month: 'long', day: 'numeric' };
   const formattedDate = date.toLocaleDateString(undefined, options);
   const formattedTime = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: 'numeric' });
   return (
-    <div className="realtime-info p-3 my-3 border rounded">
+    <div className="realtime-info p-3 my-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
       <div className="d-flex align-items-center mb-2">
-        <FontAwesomeIcon icon={faCalendarAlt} className="me-2" />
-        <span>{formattedDate}</span>
+        <FontAwesomeIcon icon={faCalendarAlt} className="me-2 text-secondary" />
+        <span className="text-secondary">{formattedDate}</span>
       </div>
       <div className="d-flex align-items-center mb-2">
-        <FontAwesomeIcon icon={faClock} className="me-2" />
-        <span>{formattedTime}</span>
+        <FontAwesomeIcon icon={faClock} className="me-2 text-secondary" />
+        <span className="text-secondary">{formattedTime}</span>
       </div>
       <div className="d-flex align-items-center">
-        <FontAwesomeIcon icon={faGlobe} className="me-2" />
-        <span>{location}</span>
+        <FontAwesomeIcon icon={faGlobe} className="me-2 text-secondary" />
+        <span className="text-secondary">Kenya, Nairobi</span>
       </div>
     </div>
   );
 };
 
-// Extended Sidebar for mobile extra info (includes contact details, version, etc.)
+// Extended Sidebar for mobile extra info (shows contact, version, etc.)
 const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
   return (
-    <Offcanvas 
-      show={show} 
-      onHide={handleClose} 
-      placement="end" 
+    <Offcanvas
+      show={show}
+      onHide={handleClose}
+      placement="end"
       className="modern-sidebar"
       style={{ maxWidth: '300px' }}
     >
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Contact & Extra Info</Offcanvas.Title>
+        <Offcanvas.Title>Extra Information</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
         <div className="contact-info mb-4">
           <h5>
-            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />System Information
+            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />About Software
           </h5>
           <div className="mb-3">
             <FontAwesomeIcon icon={faEnvelope} className="me-2" />
@@ -131,6 +114,12 @@ const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
           <div className="mb-3">
             <FontAwesomeIcon icon={faDownload} className="me-2" />
             <strong>Version:</strong> 1.1.4
+          </div>
+          <div className="mb-3">
+            <strong>Developed by:</strong> Welt Tallis
+          </div>
+          <div className="mb-3">
+            <strong>Location:</strong> Kenya, Nairobi
           </div>
         </div>
 
@@ -146,7 +135,7 @@ const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
           <div className="d-flex align-items-center gap-2">
             <span className="text-muted">Logged in as:</span>
             <Badge pill bg="danger" className="fs-8">
-              <FontAwesomeIcon icon={faUserShield} className="me-2" />
+              <FontAwesomeIcon icon={faUser} className="me-2" />
               {userName}
             </Badge>
           </div>
@@ -156,9 +145,8 @@ const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
   );
 };
 
-// Desktop Dropdown for "More Info" (shows user details, login time, session countdown, extend button)
+// Desktop dropdown for "More Info" (shows profile with name, login time, session countdown)
 const UserInfoDropdown = ({ userName, loginTime, timeRemaining, extendSession }) => {
-  // Format seconds into MM:SS
   const formatTime = (seconds) => {
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
     const ss = String(seconds % 60).padStart(2, '0');
@@ -168,13 +156,11 @@ const UserInfoDropdown = ({ userName, loginTime, timeRemaining, extendSession })
   return (
     <Dropdown align="end">
       <Dropdown.Toggle variant="secondary" id="dropdown-userinfo">
-        More Info
+        <FontAwesomeIcon icon={faUser} className="me-2" />
+        {userName}
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.ItemText>
-          <div>
-            <strong>Logged in as:</strong> {userName}
-          </div>
           <div>
             <strong>Login Time:</strong> {loginTime.toLocaleTimeString()}
           </div>
@@ -201,11 +187,12 @@ const ProtectedLayout = () => {
   const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
 
-  let userName = 'Live';
+  let userName = 'User';
   if (authToken) {
     try {
       const decoded = jwt_decode(authToken);
-      userName = decoded.name || decoded.email || 'Live';
+      // Prefer name property over email
+      userName = decoded.name || 'User';
     } catch (error) {
       console.error('Token decode error:', error);
     }
@@ -248,7 +235,7 @@ const ProtectedLayout = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Main Navbar (Desktop) */}
+      {/* Desktop Navbar */}
       <Navbar variant="dark" expand="lg" className="shadow-sm fixed-top py-2" style={{ background: "#0a0a0a" }}>
         <Container fluid className="px-3">
           <div className="d-flex justify-content-between w-100 align-items-center">
@@ -281,11 +268,9 @@ const ProtectedLayout = () => {
                 ))}
               </Nav>
 
-              {/* Right side items */}
+              {/* Right Side Items */}
               <Nav className="align-items-center gap-3 d-none d-lg-flex">
-                <div className="text-white d-flex align-items-center gap-2">
-                  <RealTimeClock />
-                </div>
+                <RealTimeClock />
                 <UserInfoDropdown 
                   userName={userName} 
                   loginTime={loginTime} 
@@ -301,7 +286,7 @@ const ProtectedLayout = () => {
         </Container>
       </Navbar>
 
-      {/* Floating Mobile Menu Button */}
+      {/* Mobile Floating Menu Button */}
       <div className="d-lg-none fixed-bottom pe-3 pb-3" style={{ zIndex: 1000 }}>
         <Button
           onClick={() => setShowMobileMenu(true)}
@@ -384,7 +369,7 @@ const ProtectedLayout = () => {
             <div className="d-flex align-items-center gap-2 text-center pt-2">
               <span className="text-muted">Logged in as:</span>
               <Badge pill className="fs-8 px-3 py-2 bg-danger">
-                <FontAwesomeIcon icon={faUserShield} className="me-2" />
+                <FontAwesomeIcon icon={faUser} className="me-2" />
                 {userName}
               </Badge>
             </div>
@@ -397,7 +382,7 @@ const ProtectedLayout = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Extended Sidebar for mobile (Extra contact/info) */}
+      {/* Extended Sidebar (Mobile extra info trigger) */}
       <ExtendedSidebar 
         show={showExtendedSidebar} 
         handleClose={() => setShowExtendedSidebar(false)} 
@@ -415,6 +400,29 @@ const ProtectedLayout = () => {
       {/* Footer */}
       <Footer />
     </div>
+  );
+};
+
+// Footer Component with modern styling
+const Footer = () => {
+  return (
+    <footer className="bg-dark text-white py-4 mt-auto border-top border-secondary">
+      <Container fluid className="px-3 px-md-4">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+          <div className="text-center text-md-start">
+            <small className="text-secondary">
+              &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 | Secure Admin Portal
+            </small>
+          </div>
+          <div className="text-center">
+            <Badge bg="secondary" className="px-3 py-2">
+              <FontAwesomeIcon icon={faShield} className="text-success me-2" />
+              Real-time System Monitoring <FontAwesomeIcon icon={faCircleCheck} className="text-success ms-2" />
+            </Badge>
+          </div>
+        </div>
+      </Container>
+    </footer>
   );
 };
 
