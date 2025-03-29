@@ -19,16 +19,10 @@ import {
   faCircleCheck,
   faUserGraduate,
   faGlobe,
-  faBuilding,
   faInfoCircle,
+  faBuilding,
   faCodeBranch
 } from '@fortawesome/free-solid-svg-icons';
-
-
-
-import { faInstagram, faTiktok } from "@fortawesome/free-brands-svg-icons";
-
-
 import { Alert } from 'react-bootstrap';
 import Policies from '../policies';
 import Charts from '../chart';
@@ -48,7 +42,7 @@ import GlobalNotifications from '../globalNotificationsListener';
 
 // Company Information Modal
 const CompanyInfoModal = ({ show, handleClose }) => (
-<Modal show={show} onHide={handleClose} centered size="lg">
+  <Modal show={show} onHide={handleClose} centered size="lg">
   <Modal.Header closeButton className="bg-dark text-light border-0">
     <Modal.Title className="fw-bold">
       <FontAwesomeIcon icon={faBuilding} className="me-2 text-primary" />
@@ -86,42 +80,6 @@ const CompanyInfoModal = ({ show, handleClose }) => (
               <span className="text-dark">Nairobi, Kenya</span>
             </li>
           </ul>
-        </div>
-
-        {/* Social Media Section */}
-        <div className="social-section border rounded p-3 bg-white">
-          <h5 className="text-primary mb-3 border-bottom pb-2">
-            <FontAwesomeIcon icon={faUserShield} className="me-2" />
-            Connect With Us
-          </h5>
-          <div className="d-grid gap-2">
-            <Button 
-              variant="outline-dark" 
-              href="https://www.tiktok.com/@peteritumo4?_t=ZM-8v5lBhu0DJ9&_r=1" 
-              target="_blank"
-              className="text-start d-flex align-items-center"
-            >
-              <FontAwesomeIcon icon={faTiktok} className="me-3 fs-5" />
-              <span className="fw-medium">TikTok</span>
-              <span className="ms-auto badge bg-dark">New Content Daily</span>
-            </Button>
-            
-            <Button 
-              variant="outline-instagram" 
-              href="https://instagram.com/welttallis" 
-              target="_blank"
-              className="text-start d-flex align-items-center"
-              style={{ 
-                background: 'linear-gradient(45deg, #405DE6, #833AB4, #E1306C)', 
-                color: 'white',
-                borderColor: '#E1306C'
-              }}
-            >
-              <FontAwesomeIcon icon={faInstagram} className="me-3 fs-5" />
-              <span className="fw-medium">Instagram</span>
-              <span className="ms-auto badge bg-white text-dark">Follow Us</span>
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -161,6 +119,7 @@ const CompanyInfoModal = ({ show, handleClose }) => (
     </small>
   </Modal.Footer>
 </Modal>
+
 );
 
 // Admin Profile Dropdown
