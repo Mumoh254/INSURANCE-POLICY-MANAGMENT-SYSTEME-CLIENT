@@ -6,8 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
-import { getCachedData } from '../utils/catche-utils';
-
+import OfflineToast from './offlineToast';
 const API_URL = 'https://insurance-v1-api.onrender.com/api/insurance';
 const TAX_RATE = 0.00;
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100];
@@ -42,32 +41,29 @@ const Policies = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Modified data fetching with caching
-        const [policiesData, usersData] = await Promise.all([
-          getCachedData(`${API_URL}/all-policies`),
-          getCachedData(`${API_URL}/users`)
+        const [policiesRes, usersRes] = await Promise.all([
+          fetch(`${API_URL}/all-policies`),
+          fetch(`${API_URL}/users`)
         ]);
+
+        if (!policiesRes.ok || !usersRes.ok) throw new Error('Failed to fetch data');
+
+        const policiesData = await policiesRes.json();
+        const usersData = await usersRes.json();
 
         setState(prev => ({
           ...prev,
-          policies: policiesData?.data || [],
-          users: usersData?.users || [],
-          loading: false,
-          error: !policiesData || !usersData ? 'Failed to fetch data' : null
+          policies: policiesData.data,
+          users: usersData.users,
+          loading: false
         }));
-
       } catch (error) {
-        setState(prev => ({ 
-          ...prev, 
-          error: error.message, 
-          loading: false 
-        }));
+        setState(prev => ({ ...prev, error: error.message, loading: false }));
       }
     };
 
     fetchData();
   }, []);
-
 
   const getStatusBadge = (policy) => {
     const now = new Date();
@@ -136,8 +132,8 @@ const Policies = () => {
 
   return (
     <div className="p-4">
-        <OfflineToast />
       <div className="d-flex justify-content-between align-items-center mb-4 exel-container">
+      <OfflineToast />
         <h2 className="color">Insurance Policies Management</h2>
         <div>
           <Button variant="success" onClick={() => {
