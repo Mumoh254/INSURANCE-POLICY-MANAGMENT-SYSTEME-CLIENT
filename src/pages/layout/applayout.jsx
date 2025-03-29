@@ -43,7 +43,7 @@ import GlobalNotifications from '../globalNotificationsListener';
 
 // Company Information Modal
 const CompanyInfoModal = ({ show, handleClose }) => (
-  <Modal show={show} onHide={handleClose} centered size="lg">
+  <Modal show={show} onHide={handleClose} centered size="md">
   <Modal.Header closeButton className="bg-dark text-light border-0">
     <Modal.Title className="fw-bold">
       <FontAwesomeIcon icon={faBuilding} className="me-2 text-primary" />
@@ -101,7 +101,7 @@ const CompanyInfoModal = ({ show, handleClose }) => (
             <div className="col-md-6">
               <div className="d-flex align-items-center mb-2">
                 <FontAwesomeIcon icon={faCalendarAlt} className="text-muted me-2" />
-                <span className="text-dark">Last Updated: 2025-03-15</span>
+                <span className="text-dark">Last Updated: 2025-03-29</span>
               </div>
             </div>
           </div>
