@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Badge, Offcanvas, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, Badge, Offcanvas, Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faClock,
@@ -19,9 +19,13 @@ import {
   faCircleCheck,
   faUserGraduate,
   faGlobe,
-
+  faDownload,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
-import { Alert } from 'react-bootstrap';
+import * as jwtDecodeImport from 'jwt-decode';
+import Cookies from 'js-cookie';
+
+// Import your pages/components
 import Policies from '../policies';
 import Charts from '../chart';
 import Notifications from '../notifications';
@@ -34,11 +38,13 @@ import AdminManagement from '../adminManagment';
 import PolicyDetails from '../view';
 import EditPolicy from '../updatepolicy';
 import UserDetails from '../singleUser';
-import Cookies from 'js-cookie';
-import * as jwt_decode from 'jwt-decode';
 import GlobalNotifications from '../globalNotificationsListener';
 
-// Real-time Clock component
+// Helper to decode JWT (handles default export issues)
+const jwt_decode = (token) =>
+  jwtDecodeImport.default ? jwtDecodeImport.default(token) : jwtDecodeImport(token);
+
+// A simple real-time clock component (for display)
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -53,7 +59,7 @@ const RealTimeClock = () => {
   );
 };
 
-// RealtimeInfo component for Offcanvas (mobile sidebar)
+// RealtimeInfo for extra information (used on mobile sidebar)
 const RealtimeInfo = () => {
   const [date, setDate] = useState(new Date());
   const [location, setLocation] = useState("Fetching location...");
@@ -96,133 +102,101 @@ const RealtimeInfo = () => {
   );
 };
 
-// Footer component with security warning
-const Footer = () => {
-  const token = localStorage.getItem('authToken');
-  let userName = 'Live';
-  if (token) {
-    try {
-      const decoded = jwt_decode.jwtDecode(token);
-      userName = decoded.name || decoded.name || 'Live';
-    } catch (error) {
-      console.error('Token decode error:', error);
-    }
-  }
+// Extended Sidebar for mobile extra info (includes contact details, version, etc.)
+const ExtendedSidebar = ({ show, handleClose, userName, extendSession }) => {
   return (
-    <footer className="bg-black text-white py-4 mt-auto border-top border-secondary">
-    <Container fluid className="px-2 px-md-4">
-      {/* Security Alert */}
-      <Alert variant="danger" className="d-flex align-items-center mb-4" dismissible>
-        <FontAwesomeIcon icon={faShieldHalved} className="me-2 fs-4" />
-        <div>
-          <strong>SECURITY ALERT:</strong> In case of suspected data breach, immediately contact:
-          <div className="mt-1">
-            <a href="tel:+2547400453555" className="text-white text-decoration-none me-3">
-              <FontAwesomeIcon icon={faPhone} className="me-1" />
-              +254 740 0453555
-            </a>
-            <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
-              <FontAwesomeIcon icon={faEnvelope} className="me-1" />
-              infowelttallis@gmail.com
-            </a>
+    <Offcanvas 
+      show={show} 
+      onHide={handleClose} 
+      placement="end" 
+      className="modern-sidebar"
+      style={{ maxWidth: '300px' }}
+    >
+      <Offcanvas.Header closeButton>
+        <Offcanvas.Title>Contact & Extra Info</Offcanvas.Title>
+      </Offcanvas.Header>
+      <Offcanvas.Body>
+        <div className="contact-info mb-4">
+          <h5>
+            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />System Information
+          </h5>
+          <div className="mb-3">
+            <FontAwesomeIcon icon={faEnvelope} className="me-2" />
+            <strong>Email:</strong> infowelttallis@gmail.com
+          </div>
+          <div className="mb-3">
+            <FontAwesomeIcon icon={faPhone} className="me-2" />
+            <strong>Phone:</strong> +254 740 045355
+          </div>
+          <div className="mb-3">
+            <FontAwesomeIcon icon={faDownload} className="me-2" />
+            <strong>Version:</strong> 1.1.4
           </div>
         </div>
-      </Alert>
 
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-        {/* Navigation Icons */}
-        <div className="d-flex flex-wrap justify-content-center gap-2 gap-md-3">
-          {[
-            { to: "/policy-holder", icon: faUserShield },
-            { to: "/sheets", icon: faFileContract },
-            { to: "/analytics", icon: faChartLine },
-            { to: "/calender", icon: faCalendarAlt },
-            { to: "/notifications", icon: faBell },
-            { to: "/create-admin", icon: faUserShield },
-          ].map((link) => (
-            <NavLink 
-              key={link.to}
-              to={link.to} 
-              className="text-decoration-none"
-            >
-              <FontAwesomeIcon 
-                icon={link.icon}
-                className="text-primary hover-scale px-2 px-md-3"
-                style={{ fontSize: '1.5rem', transition: 'transform 0.2s', cursor: 'pointer' }}
-              />
-            </NavLink>
-          ))}
+        <RealtimeInfo />
+
+        <div className="mt-3">
+          <Button variant="outline-secondary" onClick={extendSession} className="w-100">
+            Extend Session
+          </Button>
         </div>
 
-        {/* Admin Status */}
-        <div className="d-flex align-items-center gap-2 text-center">
-          <span className="text-muted">Active Admin User:</span>
-          <Badge pill bg="danger" className="fs-6 px-3 py-2" style={{ 
-            backgroundColor: '#dc3545', 
-            border: '1px solid #ff6b6b',
-            boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)'
-          }}>
-            <FontAwesomeIcon icon={faUserShield} className="me-2" />
-            {userName}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Contact & Legal */}
-      <div className="row mt-4 text-center">
-        <div className="col-md-6 mb-3 mb-md-0">
-          <div className="d-flex justify-content-center gap-3">
-            <a href="tel:+2547400453555" className="text-white text-decoration-none">
-              <FontAwesomeIcon icon={faPhone} className="me-2" />
-              Emergency Support
-            </a>
-            <a href="mailto:infowelttallis@gmail.com" className="text-white text-decoration-none">
-              <FontAwesomeIcon icon={faEnvelope} className="me-2" />
-              Security Team
-            </a>
+        <div className="mt-4 pt-2 border-top">
+          <div className="d-flex align-items-center gap-2">
+            <span className="text-muted">Logged in as:</span>
+            <Badge pill bg="danger" className="fs-8">
+              <FontAwesomeIcon icon={faUserShield} className="me-2" />
+              {userName}
+            </Badge>
           </div>
         </div>
-        <div className="col-md-6">
-          <small className="text-secondary">
-            &copy; {new Date().getFullYear()} Welt-Cover V1.1.4 insure-Sys. All rights reserved.
-            <span className="mx-2">|</span>
-            <span className="d-block d-md-inline mt-1 mt-md-0">
-              Secure Admin Portal | ISO 27001 Certified | GDPR Compliant
-            </span>
-          </small>
-        </div>
-      </div>
-
-      {/* Software Guide Link */}
-      <div className="text-center mt-3">
-        <a 
-          href="/welt  tallis   insurance    software   guide.pdf" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="btn btn-outline-light btn-sm"
-        >
-          Download Software Guide (PDF)
-        </a>
-      </div>
-
-      {/* Continuous Monitoring */}
-      <div className="text-center mt-3">
-        <Badge bg="dark" className="px-3 py-2">
-          <FontAwesomeIcon icon={faShield} className="text-success me-2" />
-          Real-time System Monitoring Active
-          <FontAwesomeIcon icon={faCircleCheck} className="text-success ms-2" />
-        </Badge>
-      </div>
-    </Container>
-  </footer>
+      </Offcanvas.Body>
+    </Offcanvas>
   );
 };
 
-// Protected Layout with responsive mobile sidebar
+// Desktop Dropdown for "More Info" (shows user details, login time, session countdown, extend button)
+const UserInfoDropdown = ({ userName, loginTime, timeRemaining, extendSession }) => {
+  // Format seconds into MM:SS
+  const formatTime = (seconds) => {
+    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const ss = String(seconds % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  };
+
+  return (
+    <Dropdown align="end">
+      <Dropdown.Toggle variant="secondary" id="dropdown-userinfo">
+        More Info
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.ItemText>
+          <div>
+            <strong>Logged in as:</strong> {userName}
+          </div>
+          <div>
+            <strong>Login Time:</strong> {loginTime.toLocaleTimeString()}
+          </div>
+          <div>
+            <strong>Session Ends In:</strong> {formatTime(timeRemaining)}
+          </div>
+        </Dropdown.ItemText>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={extendSession}>Extend Session</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
+
+// Main Protected Layout Component
 const ProtectedLayout = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [unreadCount] = useState(0);
+  const [showExtendedSidebar, setShowExtendedSidebar] = useState(false);
   const [theme, setTheme] = useState('dark');
+  const [sessionExpiryTime, setSessionExpiryTime] = useState(Date.now() + 4 * 60 * 60 * 1000); // 4 hours
+  const [timeRemaining, setTimeRemaining] = useState(4 * 60 * 60); // in seconds
+  const [loginTime] = useState(new Date());
   const authToken = localStorage.getItem('authToken');
   const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
@@ -230,21 +204,37 @@ const ProtectedLayout = () => {
   let userName = 'Live';
   if (authToken) {
     try {
-      const decoded = jwt_decode.jwtDecode(authToken);
+      const decoded = jwt_decode(authToken);
       userName = decoded.name || decoded.email || 'Live';
     } catch (error) {
       console.error('Token decode error:', error);
     }
   }
 
+  // Extend session by resetting expiry time to 4 hours from now
+  const extendSession = () => {
+    const newExpiry = Date.now() + 4 * 60 * 60 * 1000;
+    setSessionExpiryTime(newExpiry);
+  };
+
+  // Update remaining session time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const seconds = Math.max(0, Math.floor((sessionExpiryTime - Date.now()) / 1000));
+      setTimeRemaining(seconds);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sessionExpiryTime]);
+
+  // Auto-logout when session expires
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userRole');
       navigate('/login');
-    }, 5 * 60 * 60 * 1000);
+    }, sessionExpiryTime - Date.now());
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [sessionExpiryTime, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -258,7 +248,7 @@ const ProtectedLayout = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Main Navigation Bar */}
+      {/* Main Navbar (Desktop) */}
       <Navbar variant="dark" expand="lg" className="shadow-sm fixed-top py-2" style={{ background: "#0a0a0a" }}>
         <Container fluid className="px-3">
           <div className="d-flex justify-content-between w-100 align-items-center">
@@ -268,47 +258,46 @@ const ProtectedLayout = () => {
               <span className="h6 mb-0 d-none d-md-block">WELT-COVER V1</span>
             </Navbar.Brand>
 
-            {/* Mobile Logout Button */}
-            <div className="d-lg-none">
-              <Button onClick={handleLogout} variant="danger" size="sm" className="px-3">
-                Logout
-              </Button>
-            </div>
-          </div>
+            {/* Desktop Navigation */}
+            <Navbar.Collapse id="main-nav">
+              <Nav className="mx-auto align-items-center gap-4">
+                {[
+                  { to: "/policies", text: "Policies" },
+                  { to: "/sheets", text: "Sheets" },
+                  { to: "/policy-holder", text: "Policy-Holder" },
+                  { to: "/analytics", text: "Analytics" },
+                  { to: "/schedule", text: "Schedule" },
+                  { to: "/notifications", text: "Notifications" },
+                ].map((link) => (
+                  <Nav.Link
+                    key={link.to}
+                    as={NavLink}
+                    to={link.to}
+                    className="px-2 text-nowrap"
+                    style={{ fontSize: '0.95rem' }}
+                  >
+                    {link.text}
+                  </Nav.Link>
+                ))}
+              </Nav>
 
-          {/* Desktop Navigation */}
-          <Navbar.Collapse id="main-nav">
-            <Nav className="mx-auto align-items-center gap-4">
-              {[
-                { to: "/policies", text: "Policies" },
-                { to: "/sheets", text: "Sheets" },
-                { to: "/policy-holder", text: "Policy-Holder" },
-                { to: "/analytics", text: "Analytics" },
-                { to: "/schedule", text: "Schedule" },
-                { to: "/notifications", text: `Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}` },
-              ].map((link) => (
-                <Nav.Link
-                  key={link.to}
-                  as={NavLink}
-                  to={link.to}
-                  className="px-2 text-nowrap"
-                  style={{ fontSize: '0.95rem' }}
-                >
-                  {link.text}
-                </Nav.Link>
-              ))}
-            </Nav>
-            
-            {/* Desktop Right Side Items */}
-            <Nav className="align-items-center gap-3 d-none d-lg-flex">
-              <div className="text-white d-flex align-items-center gap-2">
-                <RealTimeClock />
-              </div>
-              <Button onClick={handleLogout} variant="danger" size="lg" className="px-3">
-                Logout
-              </Button>
-            </Nav>
-          </Navbar.Collapse>
+              {/* Right side items */}
+              <Nav className="align-items-center gap-3 d-none d-lg-flex">
+                <div className="text-white d-flex align-items-center gap-2">
+                  <RealTimeClock />
+                </div>
+                <UserInfoDropdown 
+                  userName={userName} 
+                  loginTime={loginTime} 
+                  timeRemaining={timeRemaining} 
+                  extendSession={extendSession} 
+                />
+                <Button onClick={handleLogout} variant="danger" size="lg" className="px-3">
+                  Logout
+                </Button>
+              </Nav>
+            </Navbar.Collapse>
+          </div>
         </Container>
       </Navbar>
 
@@ -319,98 +308,102 @@ const ProtectedLayout = () => {
           variant="primary"
           size="lg"
           className="shadow-lg"
-          style={{ width: '55px', height: '55px', bottom: '20px', right: '20px', position: 'fixed' }}
+          style={{ width: '55px', height: '55px' }}
         >
           ☰
         </Button>
       </div>
 
-      {/* Mobile Menu Offcanvas */}
-  {/* Mobile Menu Offcanvas */}
-<Offcanvas
-  show={showMobileMenu}
-  onHide={() => setShowMobileMenu(false)}
-  placement="end"
-  style={{
-    background: theme === 'light' ? "#f4f4f4" : "#111111",
-    color: theme === 'light' ? "black" : "white",
-    width: '280px'
-  }}
->
-  <Offcanvas.Header closeButton closeVariant={theme === 'light' ? "dark" : "white"} className="pb-2">
-    <Offcanvas.Title className="fs-6">Navigation Menu</Offcanvas.Title>
-  </Offcanvas.Header>
-  <Offcanvas.Body className="pt-2">
-    <Nav className="flex-column gap-2">
-      {[
-        { to: "/policies", text: "Policies", icon: faUserShield },
-        { to: "/sheets", text: "Sheets", icon: faFileContract },
-        { to: "/policy-holder", text: "Policy-Holder", icon: faChartLine },
-        { to: "/analytics", text: "Analytics", icon: faCalendarAlt },
-        { to: "/schedule", text: "Schedule", icon: faBell },
-        { to: "/notifications", text: "Notifications", icon: faBell },
-      ].map((link) => (
-        <Nav.Link
-          key={link.to}
-          as={NavLink}
-          to={link.to}
-          onClick={() => setShowMobileMenu(false)}
-          className="py-2 px-3 d-flex align-items-center gap-3"
-          style={{ fontSize: '0.9rem' }}
-        >
-          <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
-          {link.text}
-        </Nav.Link>
-      ))}
-    </Nav>
-
-    {/* Add dedicated Admin Management Button */}
-    <div className="mt-3">
-      <Button
-        variant="outline-primary"
-        className="w-100"
-        onClick={() => {
-          setShowMobileMenu(false);
-          navigate('/create-admin');
+      {/* Mobile Offcanvas Navigation */}
+      <Offcanvas
+        show={showMobileMenu}
+        onHide={() => setShowMobileMenu(false)}
+        placement="end"
+        style={{
+          background: theme === 'light' ? "#f4f4f4" : "#111111",
+          color: theme === 'light' ? "black" : "white",
+          width: '280px'
         }}
       >
-        Admin Management
-      </Button>
-    </div>
+        <Offcanvas.Header closeButton closeVariant={theme === 'light' ? "dark" : "white"}>
+          <Offcanvas.Title className="fs-6">Navigation Menu</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="pt-2">
+          <Nav className="flex-column gap-2">
+            {[
+              { to: "/policies", text: "Policies", icon: faUserShield },
+              { to: "/sheets", text: "Sheets", icon: faFileContract },
+              { to: "/policy-holder", text: "Policy-Holder", icon: faChartLine },
+              { to: "/analytics", text: "Analytics", icon: faCalendarAlt },
+              { to: "/schedule", text: "Schedule", icon: faBell },
+              { to: "/notifications", text: "Notifications", icon: faBell },
+            ].map((link) => (
+              <Nav.Link
+                key={link.to}
+                as={NavLink}
+                to={link.to}
+                onClick={() => setShowMobileMenu(false)}
+                className="py-2 px-3 d-flex align-items-center gap-3"
+                style={{ fontSize: '0.9rem' }}
+              >
+                <FontAwesomeIcon icon={link.icon} className="text-primary fs-5" />
+                {link.text}
+              </Nav.Link>
+            ))}
+          </Nav>
 
-    {/* Realtime Information Section */}
-    <div className="mt-3 px-3 pt-2 border-top border-secondary">
-      <RealtimeInfo />
-    </div>
+          <div className="mt-3">
+            <Button
+              variant="outline-primary"
+              className="w-100"
+              onClick={() => {
+                setShowMobileMenu(false);
+                navigate('/create-admin');
+              }}
+            >
+              Admin Management
+            </Button>
+          </div>
 
-    {/* Theme Toggle Section */}
-    <div className="mt-3 px-3">
-      <Button
-        variant="outline-secondary"
-        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-        className="w-100"
-      >
-        {theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-      </Button>
-    </div>
+          {/* Extra info in mobile sidebar */}
+          <div className="mt-3 px-3 pt-2 border-top border-secondary">
+            <RealtimeInfo />
+          </div>
 
-    {/* Logged In As Section */}
-    <div className="mt-4 pt-2 border-top border-secondary">
-      <div className="d-flex align-items-center gap-2 text-center pt-2">
-        <span className="text-muted">Logged in as:</span>
-        <Badge pill className="fs-8 px-3 py-2 bg-red" style={{ 
-          backgroundColor: 'red', 
-          border: '1px solid red',
-          boxShadow: '0 2px 4px rgba(255, 0, 25)'
-        }}>
-          <FontAwesomeIcon icon={faUserShield} className="me-2" />
-          {userName}
-        </Badge>
-      </div>
-    </div>
-  </Offcanvas.Body>
-</Offcanvas>
+          <div className="mt-3 px-3">
+            <Button
+              variant="outline-secondary"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              className="w-100"
+            >
+              {theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            </Button>
+          </div>
 
+          <div className="mt-4 pt-2 border-top border-secondary">
+            <div className="d-flex align-items-center gap-2 text-center pt-2">
+              <span className="text-muted">Logged in as:</span>
+              <Badge pill className="fs-8 px-3 py-2 bg-danger">
+                <FontAwesomeIcon icon={faUserShield} className="me-2" />
+                {userName}
+              </Badge>
+            </div>
+            <div className="mt-2">
+              <Button variant="outline-secondary" onClick={extendSession} className="w-100">
+                Extend Session
+              </Button>
+            </div>
+          </div>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+      {/* Extended Sidebar for mobile (Extra contact/info) */}
+      <ExtendedSidebar 
+        show={showExtendedSidebar} 
+        handleClose={() => setShowExtendedSidebar(false)} 
+        userName={userName}
+        extendSession={extendSession}
+      />
 
       {/* Main Content Area */}
       <main className="flex-grow-1 py-4 bg-light" style={{ marginTop: '70px' }}>
@@ -418,14 +411,14 @@ const ProtectedLayout = () => {
           <Outlet />
         </Container>
       </main>
-      
+
       {/* Footer */}
       <Footer />
     </div>
   );
 };
 
-// Main App Component
+// Main App Component with Routes
 const App = () => {
   return (
     <Router>
