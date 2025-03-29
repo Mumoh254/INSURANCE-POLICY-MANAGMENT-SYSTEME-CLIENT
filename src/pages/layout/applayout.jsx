@@ -20,6 +20,8 @@ import {
   faUserGraduate,
   faGlobe,
   faInfoCircle,
+  faTiktok,
+  faInstagram,
   faBuilding,
   faCodeBranch
 } from '@fortawesome/free-solid-svg-icons';
@@ -42,29 +44,119 @@ import GlobalNotifications from '../globalNotificationsListener';
 
 // Company Information Modal
 const CompanyInfoModal = ({ show, handleClose }) => (
-  <Modal show={show} onHide={handleClose} centered>
-    <Modal.Header closeButton className="bg-dark text-light">
-      <Modal.Title>
-        <FontAwesomeIcon icon={faBuilding} className="me-2" />
-        Company Information
-      </Modal.Title>
-    </Modal.Header>
-    <Modal.Body className="bg-light">
-      <div className="row g-3">
-        <div className="col-12">
-          <h5 className="text-primary mb-3"> WELT  TALLIS  </h5>
-          <ul className="list-unstyled">
-            <li><FontAwesomeIcon icon={faEnvelope} className="me-2" /> infowelttallis@gmail.com</li>
-            <li><FontAwesomeIcon icon={faPhone} className="me-2" /> +254 740  045  355</li>
-            <li><FontAwesomeIcon icon={faCodeBranch} className="me-2" /> Version: V1.1.4</li>
-            <li><FontAwesomeIcon icon={faCalendarAlt} className="me-2" /> Last Updated: 2025-03-15</li>
-            <li><FontAwesomeIcon icon={faUserShield} className="me-2" /> Licensed to: Welt-Tallis Group</li>
-            <li><FontAwesomeIcon icon={faGlobe} className="me-2" /> Headquarters: Nairobi, Keny a</li>
+<Modal show={show} onHide={handleClose} centered size="lg">
+  <Modal.Header closeButton className="bg-dark text-light border-0">
+    <Modal.Title className="fw-bold">
+      <FontAwesomeIcon icon={faBuilding} className="me-2 text-primary" />
+      WELT TALLIS - Company Profile
+    </Modal.Title>
+  </Modal.Header>
+  
+  <Modal.Body className="bg-gradient-light p-4">
+    <div className="row g-4">
+      {/* Company Info Section */}
+      <div className="col-12">
+        <div className="company-logo mb-4 text-center">
+          <div className="bg-primary text-white rounded-circle d-inline-block p-3">
+            <FontAwesomeIcon icon={faBuilding} size="2x" />
+          </div>
+          <h3 className="mt-3 text-dark">WELT TALLIS GROUP</h3>
+        </div>
+
+        <div className="info-section border rounded p-3 mb-4 bg-white">
+          <h5 className="text-primary mb-3 border-bottom pb-2">
+            <FontAwesomeIcon icon={faUserShield} className="me-2" />
+            Corporate Details
+          </h5>
+          <ul className="list-unstyled mb-0">
+            <li className="d-flex align-items-center mb-2">
+              <FontAwesomeIcon icon={faEnvelope} className="text-muted me-3" fixedWidth />
+              <a href="mailto:infowelttallis@gmail.com" className="text-dark">infowelttallis@gmail.com</a>
+            </li>
+            <li className="d-flex align-items-center mb-2">
+              <FontAwesomeIcon icon={faPhone} className="text-muted me-3" fixedWidth />
+              <a href="tel:+254740045355" className="text-dark">+254 740 045 355</a>
+            </li>
+            <li className="d-flex align-items-center mb-2">
+              <FontAwesomeIcon icon={faGlobe} className="text-muted me-3" fixedWidth />
+              <span className="text-dark">Nairobi, Kenya</span>
+            </li>
           </ul>
         </div>
+
+        {/* Social Media Section */}
+        <div className="social-section border rounded p-3 bg-white">
+          <h5 className="text-primary mb-3 border-bottom pb-2">
+            <FontAwesomeIcon icon={faUserShield} className="me-2" />
+            Connect With Us
+          </h5>
+          <div className="d-grid gap-2">
+            <Button 
+              variant="outline-dark" 
+              href="https://www.tiktok.com/@peteritumo4?_t=ZM-8v5lBhu0DJ9&_r=1" 
+              target="_blank"
+              className="text-start d-flex align-items-center"
+            >
+              <FontAwesomeIcon icon={faTiktok} className="me-3 fs-5" />
+              <span className="fw-medium">TikTok</span>
+              <span className="ms-auto badge bg-dark">New Content Daily</span>
+            </Button>
+            
+            <Button 
+              variant="outline-instagram" 
+              href="https://instagram.com/welttallis" 
+              target="_blank"
+              className="text-start d-flex align-items-center"
+              style={{ 
+                background: 'linear-gradient(45deg, #405DE6, #833AB4, #E1306C)', 
+                color: 'white',
+                borderColor: '#E1306C'
+              }}
+            >
+              <FontAwesomeIcon icon={faInstagram} className="me-3 fs-5" />
+              <span className="fw-medium">Instagram</span>
+              <span className="ms-auto badge bg-white text-dark">Follow Us</span>
+            </Button>
+          </div>
+        </div>
       </div>
-    </Modal.Body>
-  </Modal>
+
+      {/* System Info Section */}
+      <div className="col-12 mt-4">
+        <div className="system-info border rounded p-3 bg-white">
+          <h5 className="text-primary mb-3 border-bottom pb-2">
+            <FontAwesomeIcon icon={faCodeBranch} className="me-2" />
+            System Information
+          </h5>
+          <div className="row">
+            <div className="col-md-6">
+              <div className="d-flex align-items-center mb-2">
+                <FontAwesomeIcon icon={faCodeBranch} className="text-muted me-2" />
+                <span className="text-dark">Version: V1.1.4</span>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className="d-flex align-items-center mb-2">
+                <FontAwesomeIcon icon={faCalendarAlt} className="text-muted me-2" />
+                <span className="text-dark">Last Updated: 2025-03-15</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-2 text-muted small">
+            <FontAwesomeIcon icon={faUserShield} className="me-2" />
+            Licensed exclusively to Welt-Tallis Group
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal.Body>
+
+  <Modal.Footer className="bg-light border-top">
+    <small className="text-muted">
+      © {new Date().getFullYear()} WELT TALLIS GROUP. All rights reserved.
+    </small>
+  </Modal.Footer>
+</Modal>
 );
 
 // Admin Profile Dropdown
