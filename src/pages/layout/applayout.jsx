@@ -406,7 +406,7 @@ const ProtectedLayout = () => {
         show={showMobileMenu}
         onHide={() => setShowMobileMenu(false)}
         placement="end"
-        className="bg-gradient"
+        className=" bg-black"
         style={{ 
           background: '#0000',
           width: '300px'
