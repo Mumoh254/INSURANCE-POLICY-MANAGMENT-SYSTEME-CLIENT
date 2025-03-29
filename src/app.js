@@ -1,102 +1,28 @@
-// src/app.js
-class OfflineUI {
+class OfflineNotifier {
   constructor() {
-    this.modalTimeout = null;
-    this.setupOfflineDetection();
-  }
-
-  setupOfflineDetection() {
-    window.addEventListener('online', () => this.hideModal());
-    window.addEventListener('offline', () => this.showModal());
-    if (!navigator.onLine) this.showModal();
-  }
-
-  showModal() {
-    const modal = document.createElement('div');
-    modal.className = 'offline-modal';
-    modal.textContent = 'You are offline - using cached data';
-    document.body.appendChild(modal);
+    this.toast = document.createElement('div');
+    this.toast.className = 'offline-toast hidden';
+    document.body.appendChild(this.toast);
     
-    this.modalTimeout = setTimeout(() => {
-      modal.remove();
-    }, 3000);
+    window.addEventListener('online', () => this.hide());
+    window.addEventListener('offline', () => this.show());
+    this.checkStatus();
   }
 
-  hideModal() {
-    clearTimeout(this.modalTimeout);
-    document.querySelectorAll('.offline-modal').forEach(el => el.remove());
+  checkStatus() {
+    navigator.onLine ? this.hide() : this.show();
   }
-}
 
-// Initialize early
-const offlineUI = new OfflineUI();
+  show() {
+    this.toast.textContent = 'You are currently offline';
+    this.toast.classList.remove('hidden');
+    setTimeout(() => this.hide(), 3000);
+  }
 
-async function fetchAllData() {
-  try {
-    if (!navigator.onLine) {
-      return {
-        policies: await getAllData('policies'),
-        users: await getAllData('users')
-      };
-    }
-
-    const [policiesRes, usersRes] = await Promise.all([
-      fetch('/api/policies'),
-      fetch('/api/users')
-    ]);
-
-    const [policies, users] = await Promise.all([
-      policiesRes.json(),
-      usersRes.json()
-    ]);
-
-    await Promise.all([
-      saveData('policies', policies),
-      saveData('users', users)
-    ]);
-
-    return { policies, users };
-  } catch (error) {
-    console.error('Fetch error:', error);
-    return {
-      policies: await getAllData('policies'),
-      users: await getAllData('users')
-    };
+  hide() {
+    this.toast.classList.add('hidden');
   }
 }
 
-async function loadPageData() {
-  try {
-    const { policies, users } = await fetchAllData();
-    renderContent(policies, users);
-  } catch (error) {
-    if (!navigator.onLine) {
-      window.location.href = '/offline.html';
-    } else {
-      showError('Failed to load data');
-    }
-  }
-}
-
-// Handle navigation
-window.addEventListener('popstate', loadPageData);
-document.addEventListener('click', (e) => {
-  if (e.target.tagName === 'A') {
-    e.preventDefault();
-    window.history.pushState(null, '', e.target.href);
-    loadPageData();
-  }
-});
-
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-  // Register Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('SW registered:', reg))
-      .catch(err => console.error('SW registration failed:', err));
-  }
-
-  // Initial load
-  loadPageData();
-});
+// Initialize
+new OfflineNotifier();

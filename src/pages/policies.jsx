@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import { getCachedData } from '../utils/catche-utils';
 
 const API_URL = 'https://insurance-v1-api.onrender.com/api/insurance';
 const TAX_RATE = 0.00;
@@ -41,29 +42,32 @@ const Policies = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [policiesRes, usersRes] = await Promise.all([
-          fetch(`${API_URL}/all-policies`),
-          fetch(`${API_URL}/users`)
+        // Modified data fetching with caching
+        const [policiesData, usersData] = await Promise.all([
+          getCachedData(`${API_URL}/all-policies`),
+          getCachedData(`${API_URL}/users`)
         ]);
-
-        if (!policiesRes.ok || !usersRes.ok) throw new Error('Failed to fetch data');
-
-        const policiesData = await policiesRes.json();
-        const usersData = await usersRes.json();
 
         setState(prev => ({
           ...prev,
-          policies: policiesData.data,
-          users: usersData.users,
-          loading: false
+          policies: policiesData?.data || [],
+          users: usersData?.users || [],
+          loading: false,
+          error: !policiesData || !usersData ? 'Failed to fetch data' : null
         }));
+
       } catch (error) {
-        setState(prev => ({ ...prev, error: error.message, loading: false }));
+        setState(prev => ({ 
+          ...prev, 
+          error: error.message, 
+          loading: false 
+        }));
       }
     };
 
     fetchData();
   }, []);
+
 
   const getStatusBadge = (policy) => {
     const now = new Date();
@@ -132,6 +136,7 @@ const Policies = () => {
 
   return (
     <div className="p-4">
+        <OfflineToast />
       <div className="d-flex justify-content-between align-items-center mb-4 exel-container">
         <h2 className="color">Insurance Policies Management</h2>
         <div>

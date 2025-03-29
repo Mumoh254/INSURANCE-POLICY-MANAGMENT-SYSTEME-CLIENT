@@ -1,58 +1,49 @@
-// public/sw.js
-const CACHE_NAME = 'static-cache-v3';
-const OFFLINE_PAGE = '/offline.html';
-const RUNTIME_CACHE = 'runtime-cache-v1';
+const CACHE_NAME = 'app-cache-v1';
+const OFFLINE_URL = '/offline.html';
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
+// Install: Cache essential resources
+self.addEventListener('install', (e) => {
+  e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll([
         '/',
-        OFFLINE_PAGE,
-        '/styles/styles.css',
-        '/scripts/app.js',
-        '/icons/offline.png'
+        OFFLINE_URL,
+        '/styles.css',
+        '/app.js',
+        '/logo.png'
       ]))
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  // Handle all navigation requests
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
+// Fetch: Cache-first strategy
+self.addEventListener('fetch', (e) => {
+  // Handle navigation requests
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+
+  // Handle other requests
+  e.respondWith(
+    caches.match(e.request)
+      .then(cached => cached || fetch(e.request)
         .then(response => {
-          // Cache the page as it's visited
-          const clonedResponse = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(event.request, clonedResponse);
-          });
+          // Cache new responses
+          const clone = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(e.request, clone));
           return response;
         })
-        .catch(() => {
-          // Try to return cached version, fallback to offline page
-          return caches.match(event.request)
-            .then(response => response || caches.match(OFFLINE_PAGE));
-        })
-    );
-  } else {
-    // Cache-first strategy for other assets
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => response || fetch(event.request))
-    );
-  }
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.filter(name => 
-          name !== CACHE_NAME && name !== RUNTIME_CACHE
-        ).map(name => caches.delete(name))
-      );
-    })
+      )
+      .catch(() => {
+        if (e.request.destination === 'image') {
+          return caches.match('/placeholder.png');
+        }
+        return new Response('Offline content unavailable');
+      })
   );
 });
 
