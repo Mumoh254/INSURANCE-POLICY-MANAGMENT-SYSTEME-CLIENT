@@ -8,6 +8,7 @@ import {
   faChartLine,
   faCalendarAlt,
   faBell,
+  faInstagram, faTiktok,
   faUserShield,
   faHeart,
   faCar,
