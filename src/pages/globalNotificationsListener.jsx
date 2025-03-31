@@ -74,3 +74,5 @@ const GlobalNotifications = () => {
 
   return null;
 };
+
+export  default   GlobalNotifications
