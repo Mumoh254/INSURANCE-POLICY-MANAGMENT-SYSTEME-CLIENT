@@ -8,7 +8,7 @@ import {
   faChartLine,
   faCalendarAlt,
   faBell,
-  faInstagram, faTiktok,
+  
   faUserShield,
   faHeart,
   faCar,
@@ -22,6 +22,7 @@ import {
   faGlobe,
   faInfoCircle,
   faBuilding,
+  
   faCodeBranch
 } from '@fortawesome/free-solid-svg-icons';
 import { Alert } from 'react-bootstrap';

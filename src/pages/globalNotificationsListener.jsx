@@ -1,127 +1,76 @@
-// src/components/GlobalNotifications.jsx
-import React, { useEffect } from "react";
-import { io } from "socket.io-client";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
-
-const SOCKET_URL = "https://weltcoverv1-insurancesystem.onrender.com"; // Replace with your API URL
-const VAPID_PUBLIC_KEY = "BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90"; // Replace with your VAPID public key
-const NOTIFICATION_SOUND = "/notifiy.mp3"; // Ensure this file exists at the given path
-
-const urlBase64ToUint8Array = (base64String) => {
-  const padding = "=".repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
-};
-
 const GlobalNotifications = () => {
   useEffect(() => {
-    // Register Service Worker and subscribe for push notifications
-    const registerServiceWorker = async () => {
-      if (!("serviceWorker" in navigator)) {
-        console.warn("[SW] Service Workers not supported");
-        return;
-      }
+    const initNotifications = async () => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-          updateViaCache: "none"
+        // Service Worker Registration
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        console.log('[SW] Registration:', reg);
+
+        // Push Subscription
+        const subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
         });
-        console.log("[SW] Registered:", registration);
 
-        // Request notification permission
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") {
-          Swal.fire({
-            icon: "warning",
-            title: "Notifications Blocked",
-            text: "Please enable notifications in your browser settings",
-            toast: true,
-            position: "top-end"
-          });
-          return;
-        }
-
-        // Get an existing subscription or subscribe anew.
-        let subscription = await registration.pushManager.getSubscription();
-        if (!subscription) {
-          const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-          subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: convertedKey
-          });
-        }
-        console.log("[SW] Subscription:", JSON.stringify(subscription, null, 2));
-
-        // Send subscription to the server.
-        const response = await fetch(`${SOCKET_URL}/notifications/subscribe`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        // Enhanced subscription handling
+        const res = await fetch(`${SOCKET_URL}/notifications/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(subscription)
         });
 
-        // Safely parse the response JSON.
-        let jsonResponse = {};
-        try {
-          jsonResponse = await response.json();
-        } catch (err) {
-          console.error("Failed to parse JSON response:", err);
-        }
-        console.log("[SW] Subscription response:", response.status, jsonResponse);
-      } catch (error) {
-        console.error("[SW] Registration failed:", error);
+        if (!res.ok) throw new Error('Subscription failed');
+        const data = await res.json();
+        console.log('[SW] Subscription confirmed:', data);
+
+      } catch (err) {
+        console.error('[Notifications] Init error:', err);
         Swal.fire({
-          icon: "error",
-          title: "Notification Error",
-          text: "Failed to setup notifications",
-          toast: true,
-          position: "top-end"
+          title: 'Notifications disabled',
+          text: err.message,
+          icon: 'warning'
         });
       }
     };
 
-    registerServiceWorker();
-
-    // Setup Socket.IO connection for real-time notifications.
+    // WebSocket with reconnection
     const socket = io(SOCKET_URL, {
-      transports: ["websocket"],
-      reconnection: true
+      transports: ['websocket'],
+      reconnectionDelay: 5000,
+      auth: { token: localStorage.getItem('accessToken') }
     });
 
-    socket.on("connect", () => {
-      console.log("[Socket] Connected:", socket.id);
+    socket.on('connect', () => {
+      console.log('[Socket] Connected:', socket.id);
+      socket.emit('join', { userId: currentUser.id });
     });
-    socket.on("connect_error", (error) => {
-      console.error("[Socket] Connection error:", error.message);
-    });
-    socket.on("disconnect", (reason) => {
-      console.log("[Socket] Disconnected:", reason);
-    });
-    socket.on("new_notification", (notification) => {
-      console.log("[Socket] New notification received:", notification);
-      new Audio(NOTIFICATION_SOUND).play().catch(e =>
-        console.error("[Audio] Play error:", e.message)
-      );
-      if (Notification.permission !== "granted") {
-        Swal.fire({
-          title: notification.message,
-          html: `Policy: ${notification.policy?.policyName || "N/A"}<br>User: ${notification.user?.name || "System"}`,
-          icon: "info",
-          toast: true,
-          position: "top-end",
-          timer: 5000
-        });
-      }
-    });
+
+    socket.on('new_notification', handleNewNotification);
 
     return () => {
+      socket.off('new_notification');
       socket.disconnect();
-      console.log("[Socket] Disconnected on cleanup");
     };
   }, []);
 
+  const handleNewNotification = (notification) => {
+    new Audio(NOTIFICATION_SOUND).play().catch(console.warn);
+    
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.showNotification(notification.title, {
+          body: notification.message,
+          data: { url: `/notifications/${notification.id}` }
+        });
+      });
+    } else {
+      Swal.fire({
+        title: notification.title,
+        text: notification.message,
+        icon: 'info'
+      });
+    }
+  };
+
   return null;
 };
-
-export default GlobalNotifications;
