@@ -1,89 +1,67 @@
-const CACHE_NAME = 'app-cache-v2';
+// sw.js
+const CACHE_NAME = 'app-cache-v1';
 const OFFLINE_URL = '/offline.html';
-const VAPID_PUBLIC_KEY = 'BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90';
+const CACHE_URLS = [
+  '/',                      // Main HTML
+  '/index.html',            // Explicit index
+  '/styles.css',
+  '/app.js',
+  '/logo.png',
+  '/notifiy.mp3'            // Verify this file exists
+];
 
-// Consolidated install event
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll([
-        '/',
-        OFFLINE_URL,
-        '/styles.css',
-        '/app.js',
-        '/logo.png',
-        '/notifiy.mp3'
-      ]))
+      .then(cache => {
+        console.log('[SW] Caching core assets');
+        return cache.addAll(CACHE_URLS)
+          .catch(error => {
+            console.error('[SW] Cache addAll error:', error);
+            return cache.add(OFFLINE_URL); // Fallback
+          });
+      })
       .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event');
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
-      );
-    }).then(() => clients.claim())
-  );
-});
-
-// Improved fetch handler
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
+// GlobalNotifications.jsx
+const registerServiceWorker = async () => {
+    try {
+      if (!('serviceWorker' in navigator)) return;
+      
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      });
   
-  // Network-first for API calls
-  if (request.url.includes('/api')) {
-    event.respondWith(
-      fetch(request)
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Cache-first for assets
-  event.respondWith(
-    caches.match(request)
-      .then(cached => cached || fetchAndCache(request))
-  );
-});
-
-async function fetchAndCache(request) {
-  const cache = await caches.open(CACHE_NAME);
-  try {
-    const response = await fetch(request);
-    await cache.put(request, response.clone());
-    return response;
-  } catch (err) {
-    if (request.destination === 'document') {
-      return caches.match(OFFLINE_URL);
+      // Verify registration
+      if (registration.installing) {
+        console.log('[SW] Installing');
+      } else if (registration.waiting) {
+        console.log('[SW] Waiting');
+      } else if (registration.active) {
+        console.log('[SW] Active');
+      }
+      
+      return registration;
+    } catch (error) {
+      console.error('[SW] Registration failed:', error);
     }
-    throw err;
-  }
-}
+  };
 
-// Push notification improvements
-self.addEventListener('push', (event) => {
-  const payload = event.data?.json() || {};
-  const { title = 'New Notification', body = 'Update available', icon = '/logo.png' } = payload;
+
+  // sw.js
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => response || fetch(event.request))
+        .catch(error => {
+          console.error('[SW] Fetch failed:', error);
+          return caches.match(OFFLINE_URL);
+        })
+    );
+  });
+
+
   
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon,
-      badge: '/badge.png',
-      data: { url: payload.data?.url || '/' },
-      vibrate: [200, 100, 200]
-    })
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
-});
