@@ -61,7 +61,7 @@ useEffect(() => {
       }
 
       // Add error handling for subscription POST
-      await axios.post(`${API_BASE_URL}/push-subscribe`, subscription, {
+      await axios.post(`${API_BASE_URL}/subscribe`, subscription, {
         timeout: 5000
       });
       

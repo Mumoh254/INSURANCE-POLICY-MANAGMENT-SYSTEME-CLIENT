@@ -109,7 +109,7 @@ const GlobalNotifications = () => {
         });
       }
 
-      const response = await fetch(`${SOCKET_URL}/notifications/subscribe`, {
+      const response = await fetch(`${SOCKET_URL}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscription),
