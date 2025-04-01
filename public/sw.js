@@ -50,18 +50,29 @@ const registerServiceWorker = async () => {
     }
   };
 
-
-  // sw.js
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => response || fetch(event.request))
-        .catch(error => {
-          console.error('[SW] Fetch failed:', error);
-          return caches.match(OFFLINE_URL);
-        })
+// sw.js
+self.addEventListener('push', (event) => {
+    const data = event.data?.json();
+    const title = data?.title || 'New Notification';
+    const options = {
+      body: data?.body,
+      icon: '/logo.png',
+      badge: '/badge.png',
+      data: data?.payload
+    };
+  
+    event.waitUntil(
+      self.registration.showNotification(title, options)
+    );
+  });
+  
+  self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then(clientList => {
+        if (clientList.length > 0) return clientList[0].focus();
+        return clients.openWindow('/');
+      })
     );
   });
 
-
-  

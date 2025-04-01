@@ -39,18 +39,21 @@ const Policies = () => {
   }, []);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+  
     const fetchData = async () => {
       try {
         const [policiesRes, usersRes] = await Promise.all([
-          fetch(`${API_URL}/all-policies`),
-          fetch(`${API_URL}/users`)
+          fetch(`${API_URL}/all-policies`, { signal }),
+          fetch(`${API_URL}/users`, { signal })
         ]);
-
+  
         if (!policiesRes.ok || !usersRes.ok) throw new Error('Failed to fetch data');
-
+  
         const policiesData = await policiesRes.json();
         const usersData = await usersRes.json();
-
+  
         setState(prev => ({
           ...prev,
           policies: policiesData.data,
@@ -58,13 +61,24 @@ const Policies = () => {
           loading: false
         }));
       } catch (error) {
-        setState(prev => ({ ...prev, error: error.message, loading: false }));
+        if (error.name !== 'AbortError') {
+          setState(prev => ({ ...prev, error: error.message, loading: false }));
+        }
       }
     };
-
+  
+    // Initial fetch
     fetchData();
+    
+    // Set up interval for regular refreshes
+    const intervalId = setInterval(fetchData, 900000); // 15 minutes
+  
+    // Cleanup function
+    return () => {
+      abortController.abort();
+      clearInterval(intervalId);
+    };
   }, []);
-
   const getStatusBadge = (policy) => {
     const now = new Date();
     const start = new Date(policy.startDate);

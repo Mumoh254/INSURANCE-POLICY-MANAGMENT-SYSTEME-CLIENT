@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Badge, Button, Container, Row, Col, Alert, Modal, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,12 +7,22 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
 const API_BASE_URL = "https://insurance-v1-api.onrender.com";
+const VAPID_PUBLIC_KEY = 'BK5yk-r_qoR6flSHtGZkEYlrBxQ-M4QcLUxLnUDaIQLKJR-MC4JSfwdPFoDCEXhrbBtqvQsob4U0CQn0W6LzW90';
 
 const notificationStyles = {
   EXPIRED: { bg: "#ffeef0", color: "#cf222e" },
   NEW: { bg: "#e6f4ff", color: "#1a73e8" },
   REMINDER: { bg: "#fff8e6", color: "#e6a700" },
   TASK: { bg: "#e6f4ea", color: "#1e8e3e" },
+};
+
+const urlBase64ToUint8Array = (base64String) => {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 };
 
 const Notifications = () => {
@@ -35,28 +45,80 @@ const Notifications = () => {
     stateRef.current = state;
   }, [state]);
 
-  const fetchNotifications = async () => {
+  // Push notifications setup
+  useEffect(() => {
+    const setupPushNotifications = async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+
+        await axios.post(`${API_BASE_URL}/push-subscribe`, subscription);
+        setState(prev => ({ ...prev, socketConnected: true }));
+      } catch (error) {
+        console.error('Push subscription failed:', error);
+      }
+    };
+
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') setupPushNotifications();
+      });
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/notifications`);
       const validNotifications = response.data.notifications
         .filter((n) => n?.id && n?.message)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setState((prev) => ({
+      
+      setState(prev => ({
         ...prev,
         notifications: validNotifications,
         unreadCount: validNotifications.filter((n) => !n.isRead).length,
         loading: false,
       }));
     } catch (err) {
-      setState((prev) => ({ ...prev, error: "Failed to load notifications", loading: false }));
+      setState(prev => ({ ...prev, error: "Failed to load notifications", loading: false }));
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchNotifications();
-    // (If you want to use a separate socket connection for local listing, you can keep this; 
-    // otherwise, GlobalNotifications already handles popups and sound.)
-    socketRef.current = null;
+    const abortController = new AbortController();
+    
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/notifications`, {
+          signal: abortController.signal
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        
+        setState(prev => ({
+          ...prev,
+          notifications: data.notifications,
+          unreadCount: data.notifications.filter(n => !n.isRead).length,
+          loading: false
+        }));
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setState(prev => ({ ...prev, error: error.message, loading: false }));
+        }
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 900000); // 15 minutes
+    
+    return () => {
+      abortController.abort();
+      clearInterval(interval);
+    };
   }, []);
 
   const handleDelete = async (notificationId) => {
@@ -69,17 +131,19 @@ const Notifications = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     });
+    
     if (!result.isConfirmed) return;
+    
     try {
-      setState((prev) => ({ ...prev, deletingIds: [...prev.deletingIds, notificationId] }));
+      setState(prev => ({ ...prev, deletingIds: [...prev.deletingIds, notificationId] }));
       await axios.delete(`${API_BASE_URL}/notifications/${notificationId}`);
       await fetchNotifications();
     } catch (err) {
       Swal.fire("Error!", err.response?.data?.error || "Deletion failed", "error");
     } finally {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
-        deletingIds: prev.deletingIds.filter((id) => id !== notificationId),
+        deletingIds: prev.deletingIds.filter(id => id !== notificationId),
       }));
     }
   };
@@ -93,23 +157,23 @@ const Notifications = () => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    setState(prev => ({
+      ...prev,
+      selectedNotification: notification,
+      showDetailModal: true
+    }));
+  };
+
   const NotificationItem = ({ notification }) => {
+    const isPushNotification = !notification.id;
     const styleConfig = notificationStyles[notification.type] || notificationStyles.NEW;
+
     return (
-      <div
-        className="mb-3"
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            selectedNotification: notification,
-            showDetailModal: true,
-          }))
-        }
-      >
+      <div className="mb-3" onClick={() => handleNotificationClick(notification)}>
         <div
           className="rounded p-2 p-md-3 position-relative shadow-sm"
           style={{
-            width: "100%",
             backgroundColor: styleConfig.bg,
             border: `1px solid ${styleConfig.color}50`,
             cursor: "pointer",
@@ -117,21 +181,28 @@ const Notifications = () => {
           }}
         >
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <Badge pill style={{ backgroundColor: styleConfig.color, color: "white", fontSize: "0.75rem" }}>
+            <Badge pill style={{ 
+              backgroundColor: styleConfig.color, 
+              color: "white", 
+              fontSize: "0.75rem" 
+            }}>
               {notification.type}
             </Badge>
             <small className="text-muted" style={{ fontSize: "0.8rem" }}>
               {new Date(notification.createdAt).toLocaleTimeString()}
             </small>
           </div>
+          
           <div style={{ color: styleConfig.color, fontSize: "0.9rem" }}>
             {notification.message}
           </div>
+
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div className="text-muted" style={{ fontSize: "0.8rem" }}>
               <FontAwesomeIcon icon={faUser} className="me-1" />
               {notification.creator?.name || "System"}
             </div>
+            
             <Button
               variant="link"
               size="sm"
@@ -149,10 +220,19 @@ const Notifications = () => {
               )}
             </Button>
           </div>
+
           {!notification.isRead && (
             <div className="position-absolute top-0 end-0 mt-1 me-1">
               <Badge pill bg="success" style={{ fontSize: "0.6rem" }}>
                 New
+              </Badge>
+            </div>
+          )}
+
+          {isPushNotification && (
+            <div className="position-absolute top-0 start-0 mt-1 me-1">
+              <Badge pill bg="info" style={{ fontSize: "0.6rem" }}>
+                Push
               </Badge>
             </div>
           )}
@@ -165,7 +245,7 @@ const Notifications = () => {
     <Container fluid className="vh-100 bg-light p-3">
       <Row className="mb-3">
         <Col>
-          <h2 className="d-flex justify-content-between align-items-center" style={{ fontSize: "1.5rem" }}>
+          <h2 className="d-flex justify-content-between align-items-center">
             Insurance Real-Time Notifications
             <div className="d-flex gap-2">
               <Badge pill bg="danger">
@@ -196,12 +276,13 @@ const Notifications = () => {
               <Spinner animation="border" variant="primary" size="sm" />
             </div>
           ) : (
-            <div className="bg-white rounded-3 shadow-sm p-2" style={{ maxHeight: "75vh", overflowY: "auto", scrollbarWidth: "thin" }}>
+            <div className="bg-white rounded-3 shadow-sm p-2" 
+                 style={{ maxHeight: "75vh", overflowY: "auto" }}>
               {state.notifications.map(notification => (
                 <NotificationItem key={notification.id} notification={notification} />
               ))}
               {state.notifications.length === 0 && (
-                <div className="text-center text-muted py-3" style={{ fontSize: "0.9rem" }}>
+                <div className="text-center text-muted py-3">
                   No notifications available
                 </div>
               )}
@@ -212,25 +293,23 @@ const Notifications = () => {
 
       <Modal
         show={state.showDetailModal}
-        onHide={() => setState((prev) => ({ ...prev, showDetailModal: false }))}
+        onHide={() => setState(prev => ({ ...prev, showDetailModal: false }))}
         size="lg"
       >
-        <Modal.Header closeButton className="p-3">
-          <Modal.Title style={{ fontSize: "1.25rem" }}>Notification Details</Modal.Title>
+        <Modal.Header closeButton>
+          <Modal.Title>Notification Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-3">
+        <Modal.Body>
           {state.selectedNotification && (
             <>
-              <p className="mb-2"><strong>Type:</strong> {state.selectedNotification.type}</p>
-              <p className="mb-2"><strong>Received:</strong> {new Date(state.selectedNotification.createdAt).toLocaleString()}</p>
-              <p className="mb-0" style={{ fontSize: "1rem" }}>
-                <strong>Message:</strong> {state.selectedNotification.message}
-              </p>
+              <p><strong>Type:</strong> {state.selectedNotification.type}</p>
+              <p><strong>Received:</strong> {new Date(state.selectedNotification.createdAt).toLocaleString()}</p>
+              <p><strong>Message:</strong> {state.selectedNotification.message}</p>
             </>
           )}
         </Modal.Body>
-        <Modal.Footer className="p-2">
-          <Button variant="secondary" size="sm" onClick={() => setState((prev) => ({ ...prev, showDetailModal: false }))}>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setState(prev => ({ ...prev, showDetailModal: false }))}>
             Close
           </Button>
         </Modal.Footer>

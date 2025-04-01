@@ -17,6 +17,7 @@ const UserDetails = () => {
       .get(`https://insurance-v1-api.onrender.com/api/insurance/users/${id}`)
       .then((response) => {
         setUser(response.data);
+        console.log(user)
         setLoading(false);
       })
       .catch((err) => {
