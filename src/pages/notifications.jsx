@@ -44,30 +44,45 @@ const Notifications = () => {
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
-
-  // Push notifications setup
-  useEffect(() => {
-    const setupPushNotifications = async () => {
-      try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        const subscription = await registration.pushManager.subscribe({
+// In your Notifications component
+useEffect(() => {
+  const setupPushNotifications = async () => {
+    try {
+      // Add timeout for slow connections
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Check for existing subscription first
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
         });
-
-        await axios.post(`${API_BASE_URL}/push-subscribe`, subscription);
-        setState(prev => ({ ...prev, socketConnected: true }));
-      } catch (error) {
-        console.error('Push subscription failed:', error);
       }
-    };
 
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') setupPushNotifications();
+      // Add error handling for subscription POST
+      await axios.post(`${API_BASE_URL}/push-subscribe`, subscription, {
+        timeout: 5000
       });
+      
+    } catch (error) {
+      console.error('Push subscription failed:', error);
+      // Add user feedback
+      Swal.fire('Notifications Disabled', 'Please enable browser notifications', 'info');
     }
-  }, []);
+  };
+
+  // Add feature detection
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        setupPushNotifications();
+      } else {
+        console.log('Permission not granted');
+      }
+    });
+  }
+}, []);
 
   const fetchNotifications = useCallback(async () => {
     try {
